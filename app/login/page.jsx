@@ -1,5 +1,92 @@
+'use client';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import Image from "next/image";
+import Link from "next/link";
+import { useAuth } from "@/context/AuthContext"; 
+import { useState } from "react";
+
 export default function Login() {
-    return <>
-      Hello Login
-    </>
+  const [loginForm , setLoginForm] = useState({
+    email : '',password : ''
+  })
+  const [validationError , setValidationErrors] = useState({})
+  const { isLoading , loginUser } = useAuth()
+  const validateForm = ()=>{
+    const newErrors = {}
+    if (!loginForm.email.trim()) newErrors.email = "Email is required";
+      else if (!/^\S+@\S+\.\S+$/.test(loginForm.email)) newErrors.email = "Invalid email address";
+  
+    if (!loginForm.password.trim()) newErrors.password = "Password is required";
+
+    setValidationErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+  const handleChange = e =>{
+    setLoginForm(prev => ({...prev , [e.target.id] : e.target.value}))
+  }
+
+  const handleLogin = async ()=>{
+    if (!validateForm()) return ;
+    await loginUser(loginForm)
+  }
+  return (
+    <div className="min-h-screen flex items-center justify-center px-6 md:px-16 lg:px-20 py-10">
+      <Card className="w-full max-w-md shadow-lg border border-border">
+        <CardHeader className="flex flex-col items-center gap-3 text-center">
+          <div className="flex justify-center">
+            <Image
+              className="dark:hidden"
+              src="/assets/logo-light.svg"
+              alt="logo"
+              height={40}
+              width={130}
+            />
+            <Image
+              className="hidden dark:block"
+              src="/assets/logo-dark.svg"
+              alt="logo"
+              height={40}
+              width={130}
+            />
+          </div>
+          <CardTitle className="text-2xl font-semibold">Welcome Back</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Log in to access your dashboard and stay updated.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email address</Label>
+            <Input id="email" type="email" placeholder="you@example.com" onChange={handleChange} value={loginForm.email}/>
+            {validationError.email && <p className="text-red-500 text-sm">{validationError.email}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" placeholder="*********" onChange={handleChange} value={loginForm.password}/>
+            {validationError.password && <p className="text-red-500 text-sm">{validationError.password}</p>}
+          </div>
+
+          <div className="flex items-center justify-between text-sm">
+            <Link href="#" className="text-blue-600 hover:underline dark:text-blue-400">
+              Forgot password?
+            </Link>
+          </div>
+
+          <Button className={`w-full mt-2 ${isLoading ? 'opacity-75' : 'opacity-100'}`} onClick={handleLogin} disabled={isLoading}>{isLoading ? 'Login in...' : 'Log In'}</Button>
+        </CardContent>
+
+        <CardFooter className="text-sm text-center text-muted-foreground">
+          Don't have an account?{" "}
+          <Link href="/register" className="ml-1 text-blue-600 hover:underline dark:text-blue-400">
+            Register
+          </Link>
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }

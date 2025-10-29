@@ -480,9 +480,10 @@ function SidebarMenuButton({
   size = "default",
   tooltip,
   className,
+  href , 
   ...props
 }) {
-  const Comp = asChild ? Slot : "button"
+  const Comp = asChild ? Slot : href ? "a" : "button"
   const { isMobile, state } = useSidebar()
 
   const button = (
@@ -490,6 +491,7 @@ function SidebarMenuButton({
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
       data-size={size}
+      href={href}
       data-active={isActive}
       className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
       {...props} />

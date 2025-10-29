@@ -32,7 +32,7 @@ export function NavMain({menu}) {
           >
             <SidebarMenuItem>
              
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton href={item.href} tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span>{item.name}</span>
                 </SidebarMenuButton>

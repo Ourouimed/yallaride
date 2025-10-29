@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(true)
       await signInWithEmailAndPassword(auth , email , password)
       toast.success('User login successfully')
+      router.push('/dashboard')
     }
     catch(error){
       toast.error(error.message)

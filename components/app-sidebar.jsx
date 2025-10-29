@@ -1,23 +1,21 @@
 "use client"
 
-import * as React from "react"
 import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Frame,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Settings2,
-  SquareTerminal,
+  Car,
+  Home,
+  MapPin,
+  Settings,
+  User,
+  Users,
+  Waypoints,
+  ShipWheel,
+  PlusCircle,
+  ClipboardList,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
+import Image from "next/image"
+import { NavMain } from "./nav-main"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -26,152 +24,64 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+export function AppSidebar({ user, ...props }) {
+  const role = user?.role || "passenger"
+role
+  const baseMenu = [
+    { name: "Home", icon: Home, href: "/dashboard" },
+    { name: "Profile", icon: User, href: "/dashboard/profile" },
+    { name: "Networks", icon: Users, href: "/dashboard/networks" }
+  ]
 
-export function AppSidebar({
-  ...props
-}) {
+  const menus = {
+    director: [
+      ...baseMenu,
+    ],
+    driver: [
+      ...baseMenu,
+      { name: "My Rides", icon: Waypoints, href: "/dashboard/rides" },
+    ],
+    passenger: [
+      ...baseMenu,
+      { name: "My Trips", icon: Waypoints, href: "/dashboard/rides" },
+    ],
+  }
+
+  const menu = menus[role] || baseMenu
+
   return (
     <Sidebar collapsible="icon" {...props}>
+      {/* Header */}
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <div className="p-4">
+          <Image
+            className="dark:hidden"
+            src="/assets/logo-light.svg"
+            alt="logo"
+            height={35}
+            width={125}
+          />
+          <Image
+            className="hidden dark:block"
+            src="/assets/logo-dark.svg"
+            alt="logo"
+            height={35}
+            width={125}
+          />
+        </div>
       </SidebarHeader>
+
+      {/* Content */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavMain menu={menu} />
       </SidebarContent>
+
+      {/* Footer */}
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

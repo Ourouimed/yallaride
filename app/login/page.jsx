@@ -6,15 +6,17 @@ import { Label } from "@/components/ui/label";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext"; 
-import { useState } from "react";
-import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [loginForm , setLoginForm] = useState({
     email : '',password : ''
   })
+  const [mounted, setMounted] = useState(false);
   const [validationError , setValidationErrors] = useState({})
-  const { isLoading , loginUser } = useAuth()
+  const { isLoading , loginUser , user} = useAuth()
+  const router = useRouter()
   const validateForm = ()=>{
     const newErrors = {}
     if (!loginForm.email.trim()) newErrors.email = "Email is required";
@@ -33,6 +35,23 @@ export default function Login() {
     if (!validateForm()) return ;
     await loginUser(loginForm)
   }
+  useEffect(() => setMounted(true), []);
+
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.replace("/dashboard");
+    }
+  }, [user, isLoading, router]);
+
+  if (!mounted || isLoading || user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading session...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-6 md:px-16 lg:px-20 py-10">
       <Card className="w-full max-w-md shadow-lg border border-border">
@@ -90,4 +109,4 @@ export default function Login() {
       </Card>
     </div>
   );
-}
+} 

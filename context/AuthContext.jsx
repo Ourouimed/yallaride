@@ -11,7 +11,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
     useEffect(() => {
@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
         } else {
           setUser(null);
         }
+        setIsLoading(false)
       });
 
   return () => unsubscribe();

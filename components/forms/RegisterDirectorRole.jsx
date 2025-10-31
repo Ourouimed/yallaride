@@ -4,6 +4,7 @@ import DatePicker from "../ui/date-picker";
 import { useState } from "react";
 
 export default function RegisterDirectorRole({ setRegisterForm, registerForm , errors , currRole}) {
+  const [date , setDate] = useState(undefined)
   const [roleData , setRoleData ] = useState({
     role : currRole , 
     institution : ''

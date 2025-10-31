@@ -7,17 +7,29 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import DatePicker from "@/components/ui/date-picker";
 import { Textarea } from "@/components/ui/textarea";
+import DriverProfile from "@/components/forms/DriverProfile";
+import { Button } from "@/components/ui/button";
+import DirectorProfile from "@/components/forms/DirectorProfile";
 
 export default function ProfilePage (){
-    const { user } = useAuth()
+    const { user , updateProfile , isLoading} = useAuth()
     const [date, setDate] = useState(undefined)
-    const [profile , setProfile ] = useState({
-        fullname : '' , email : '' , birthdate : '' , bio : ''
-    })
+    const [ profile , setProfile ] = useState({
+        fullname : '', 
+        birthdate : '' , 
+        bio : '' , 
+        email : ''  , 
+        password : '' , 
+        confirmpassword : '' ,
+        roleform : {}
+      })
 
     useEffect(() => {
         if (user) {
-          setProfile({...profile , fullname: user.fullname , email : user.email});
+          setProfile(user);
+        }
+        if (user?.roleform){
+            setProfile(e => ({...e , roleform : user.roleform}))
         }
     }, [user]);
 
@@ -35,7 +47,11 @@ export default function ProfilePage (){
     };
     return <>
     <DashboardLayout>
-       <h3 className="text-xl font-semibold  py-2">My Profile</h3>
+        <div className="flex items-center justify-between bg-background py-3">
+            <h3 className="text-xl font-semibold py-2">My Profile</h3>
+            
+        </div>
+       
        <Card>
         <CardHeader className='!pb-3 border-b border-border'>
             <CardTitle>
@@ -50,7 +66,7 @@ export default function ProfilePage (){
                 </div>
                 <div className="w-full">
                     <Label htmlFor="email">Email address</Label>
-                    <Input id="email" type="text" placeholder="you@example.com" onChange={handleChange} value={profile.email}/>
+                    <Input id="email" type="text" placeholder="you@example.com" readOnly disabled onChange={handleChange} value={profile.email}/>
                 </div>
             </div>
             
@@ -70,7 +86,14 @@ export default function ProfilePage (){
         
        </Card>
 
-       {user?.role === 'driver'}
+       {user?.role === 'driver' && <DriverProfile profile={profile} setProfile={setProfile}/>}
+       {user?.role === 'director' && <DirectorProfile profile={profile} setProfile={setProfile}/>}
+
+       <div className="flex items-center justify-end bg-background py-3">
+            <Button onClick={()=> updateProfile(profile)} disabled={isLoading}>{isLoading ? 'Updating... ' : 'Update Profile'}</Button>
+       
+       </div>
+       
     </DashboardLayout>
   </> 
 }

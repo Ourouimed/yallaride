@@ -1,7 +1,7 @@
 'use client';
 import { auth, db } from '@/lib/firebaseClient';
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, updateEmail } from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 import { useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
         email,
         fullname,
         birthdate,
+        bio : '' ,
         role : roleform.role ,
         roleform, 
         createdAt: new Date(),
@@ -67,8 +68,23 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false)
     }
   }
+
+  const updateProfile = async (data)=>{
+    setIsLoading(true)
+    try {
+      const userRef = doc(db , 'users' , auth.currentUser.uid)
+      await updateDoc (userRef , data)
+      toast.success('User updated succefully')
+    }
+    catch (error){
+      toast.error(error.message)
+    }
+    finally{
+      setIsLoading(false)
+    }
+  }
   return (
-    <AuthContext.Provider value={{ isLoading, user, registerUser , loginUser }}>
+    <AuthContext.Provider value={{ isLoading, user, registerUser , loginUser , updateProfile}}>
       {children}
     </AuthContext.Provider>
   );

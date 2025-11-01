@@ -1,6 +1,6 @@
 'use client';
 import { auth, db } from '@/lib/firebaseClient';
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, updateEmail } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut, updateEmail } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 import { useRouter } from 'next/navigation';
@@ -86,8 +86,19 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false)
     }
   }
+
+    const logOut = async ()=>{
+        try {
+          await signOut(auth)
+        }
+        catch(error){
+          toast.error(error.message)
+        }
+    }
+
+
   return (
-    <AuthContext.Provider value={{ isLoading, user, registerUser , loginUser , updateProfile}}>
+    <AuthContext.Provider value={{ isLoading, user, registerUser , loginUser , updateProfile , logOut}}>
       {children}
     </AuthContext.Provider>
   );

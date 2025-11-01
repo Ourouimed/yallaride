@@ -4,6 +4,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 import { PopupProvider } from "@/context/PopupContext";
 import { Popup } from "@/components/Popup";
+import { NetworkProvider } from "@/context/NetworksContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,17 +30,20 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <AuthProvider>
-      <PopupProvider>
-        <html lang="en">
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} font-poppins antialiased`}
-          >
-            {children}
-            <Popup />
-            <Toaster/>
-          </body>
-        </html>
-      </PopupProvider>
+      <NetworkProvider>
+        <PopupProvider>
+          <html lang="en">
+            <body
+              className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} font-poppins antialiased`}
+            >
+              {children}
+              <Popup />
+              <Toaster/>
+            </body>
+          </html>
+        </PopupProvider>
+      </NetworkProvider>
+      
     </AuthProvider>
   );
 }

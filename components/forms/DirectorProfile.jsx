@@ -30,7 +30,7 @@ export default function DirectorProfile({ profile, setProfile }) {
   return (
     <Card>
       <CardHeader className="!pb-3 border-b border-border">
-        <CardTitle>Driver Information</CardTitle>
+        <CardTitle>Director Information</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2 flex items-center gap-2 w-full">

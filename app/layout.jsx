@@ -2,6 +2,8 @@ import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
+import { PopupProvider } from "@/context/PopupContext";
+import { Popup } from "@/components/Popup";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,14 +29,17 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <AuthProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} font-poppins antialiased`}
-        >
-          {children}
-          <Toaster/>
-        </body>
-      </html>`
+      <PopupProvider>
+        <html lang="en">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} font-poppins antialiased`}
+          >
+            {children}
+            <Popup />
+            <Toaster/>
+          </body>
+        </html>
+      </PopupProvider>
     </AuthProvider>
   );
 }

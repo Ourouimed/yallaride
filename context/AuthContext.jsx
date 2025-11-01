@@ -27,6 +27,8 @@ export const AuthProvider = ({ children }) => {
 
   return () => unsubscribe();
 }, []);
+
+
   const registerUser = async ({ email, password, fullname, birthdate, roleform })=>{
     try {
       setIsLoading(true)

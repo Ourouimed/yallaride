@@ -44,7 +44,7 @@ export default function Login() {
     }
   }, [user, isLoading, router]);
 
-  if (!mounted || isLoading || user) {
+  if (!mounted || isLoading && user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         Loading session...

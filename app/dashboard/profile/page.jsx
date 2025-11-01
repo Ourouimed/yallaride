@@ -47,7 +47,7 @@ export default function ProfilePage (){
     };
     return <>
     <DashboardLayout>
-        <div className="flex items-center justify-between bg-background py-3">
+        <div className="flex items-center justify-betwee py-3">
             <h3 className="text-xl font-semibold py-2">My Profile</h3>
             
         </div>

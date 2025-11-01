@@ -43,7 +43,7 @@ export default function Header(){
                 <Button variant="outline" onClick={toggleTheme}>
                     {theme === 'dark' ? <Sun/> : <Moon/>}
                 </Button>
-                <Button>Get started</Button>
+                <Button href="/login">Get started</Button>
             </div>
         </div>
 

@@ -15,7 +15,7 @@ export default function NetworkPage(){
     const [networkData , setNetworkData] = useState(null)
     const { getNetwork } = useNetwork()
     const { user } = useAuth()
-    const { openPopup , closePopup } = usePopup()
+    const { openPopup  } = usePopup()
 
 
     useEffect(() => {
@@ -44,7 +44,11 @@ export default function NetworkPage(){
                                 <Button className='rounded-md' onClick={()=> openPopup('Offer ride' , <OfferRidePopup networkId={networkId}/>)}>
                                     Offer Ride<Plus/>
                                 </Button> 
-                        </>: null}
+                        </>: user?.role == 'passanger' ? <>
+                                <Button className='rounded-md' href={`/dashboard/network/${networkId}/find`}>
+                                    Find Ride
+                                </Button> 
+                        </> : null}
                     
                 </div>
             </div>

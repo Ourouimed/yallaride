@@ -14,10 +14,13 @@ export default function OfferRidePopup({networkId}){
         ride_description : '',
         departure_date : '' , 
         departure_time : '' ,
+        arrival_date : '' , 
+        arrival_time : '' ,
         price : '' ,
         available_seats : 0
     })
-    const [date , setDate] = useState(undefined)
+    const [departureDate , setDepartureDate] = useState(undefined)
+    const [arrivalDate , setArrivalDate] = useState(undefined)
     const [validationError , setValidationErrors] = useState({})
     const { closePopup } = usePopup()
     const { isLoading , offerRide } = useNetwork()
@@ -37,15 +40,23 @@ export default function OfferRidePopup({networkId}){
 
 
     const handleChange = (e)=>{
-        setRideData(prev => ({...prev , [e.target.id] : e.target.value}))
+        setRideData(prev => ({...prev , [e.target.id] : e.target.value.toLowerCase()}))
     }
     
 
-    const handleDateChange = (selectedDate) => {
-        setDate(selectedDate);
+    const handleDepartureDateChange = (selectedDate) => {
+        setDepartureDate(selectedDate);
         setRideData((prev) => ({
           ...prev,
           departure_date: selectedDate ? selectedDate.toLocaleDateString("en-CA") : "",
+        }));
+    };
+
+    const handleArrivalDateChange = (selectedDate) => {
+        setArrivalDate(selectedDate);
+        setRideData((prev) => ({
+          ...prev,
+          arrival_date: selectedDate ? selectedDate.toLocaleDateString("en-CA") : "",
         }));
     };
 
@@ -76,7 +87,7 @@ export default function OfferRidePopup({networkId}){
                     <DatePicker
                       id="departure_date"
                       date={rideData.departure_date ? new Date(rideData.departure_date) : undefined}
-                      setDate={handleDateChange}
+                      setDate={handleDepartureDateChange}
                     />
                     {validationError.departure_date && <p className="text-red-500 text-sm">{validationError.departure_date}</p>}
                 </div>
@@ -84,6 +95,23 @@ export default function OfferRidePopup({networkId}){
                     <Label htmlFor='departure_time'>Departure time</Label>
                     <Input type='time' id='departure_time' onChange={handleChange} value={rideData.departure_time}></Input>
                     {validationError.departure_time && <p className="text-red-500 text-sm">{validationError.departure_time}</p>}
+                </div>
+            </div>
+
+            <div className="space-y-2 flex items-center gap-2 w-full">
+                <div className="w-full mb-0 space-y-2">
+                    <Label htmlFor='arrival_date'>Arrival Date</Label>
+                    <DatePicker
+                      id="arrival_date"
+                      date={rideData.arrival_date ? new Date(rideData.arrival_date) : undefined}
+                      setDate={handleArrivalDateChange}
+                    />
+                    {validationError.arrival_date && <p className="text-red-500 text-sm">{validationError.arrival_date}</p>}
+                </div>
+                <div className="w-full mb-0 space-y-2">
+                    <Label htmlFor='arrival_time'>Arrival time</Label>
+                    <Input type='time' id='arrival_time' onChange={handleChange} value={rideData.arrival_time}></Input>
+                    {validationError.arrival_time && <p className="text-red-500 text-sm">{validationError.arrival_time}</p>}
                 </div>
             </div>
 

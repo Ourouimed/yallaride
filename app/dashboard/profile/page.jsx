@@ -60,11 +60,11 @@ export default function ProfilePage (){
         </CardHeader>
         <CardContent className='space-y-4'>
             <div className="space-y-2 flex items-center gap-2 w-full">
-                <div className="w-full">
+                <div className="w-full mb-0">
                     <Label htmlFor="fullname">Full name</Label>
                     <Input id="fullname" type="text" placeholder={user?.fullname} onChange={handleChange} value={profile.fullname}/>
                 </div>
-                <div className="w-full mb-0">
+                <div className="w-full">
                     <Label htmlFor="email">Email address</Label>
                     <Input id="email" type="text" placeholder="you@example.com" readOnly disabled onChange={handleChange} value={profile.email}/>
                 </div>

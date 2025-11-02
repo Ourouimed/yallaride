@@ -85,6 +85,55 @@ export const NetworkProvider = ({children})=>{
     }
   }
 
+  // Get single network 
+  const getNetwork = async (id)=>{
+    try {
+        const currNetwork = doc(db , 'networks' , id)
+        const snapshot = await getDoc(currNetwork)
+        if (snapshot.exists()) {
+          return snapshot.data()
+        }
+        return null
+    }
+    catch (error){
+        toast.error(error.message)
+    }
+    
+  }
+
+  const offerRide = async (rideData , networkId)=>{
+    try {
+      setIsLoading(true)
+      const inviteCode = generateInviteCode()
+
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+      const userData = userDoc.data();
+
+
+      if (userData?.role == 'driver'){
+        await setDoc(doc(db , 'rides' , `ride-${inviteCode}`) , 
+            {
+                ...rideData , 
+                driver : auth.currentUser.uid,
+                network_id : networkId,
+                passangers : [],
+                ride_status : 'pending' ,
+                createdAt : new Date()
+            })
+        toast.success('Ride created successfully')
+      }
+      else {
+        throw new Error('You do not have permission to create Ride')
+      }
+      
+    } 
+    catch (error){
+        console.log(error)
+        toast.error(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
   useEffect(()=>{
     const unsubscribe = onAuthStateChanged(auth , async (user)=>{
         if (user){
@@ -125,7 +174,7 @@ export const NetworkProvider = ({children})=>{
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide , isLoading , networksList}}>
         {children}
     </NetworkContext.Provider>
 }

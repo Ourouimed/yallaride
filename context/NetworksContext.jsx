@@ -141,7 +141,6 @@ export const NetworkProvider = ({children})=>{
       }
 
       const status = driver.status
-      console.log(status)
 
 
       if (userData?.role == 'driver'){
@@ -181,7 +180,23 @@ export const NetworkProvider = ({children})=>{
       const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       const userData = userDoc.data();
       const ridesRef = collection(db , 'rides')
+
+      const networkRef = doc(db, "networks", networkId);
+      const snapshot = await getDoc(networkRef);
+
+      const data = snapshot.data();
+      const passanger = data.passangers.find(p => p.id === auth.currentUser.uid);
+
+      if (!passanger){
+        throw new Error('Unknown error') 
+      }
+
+      const status = passanger.status
+
+
+
       if (userData?.role === 'passanger'){
+        if (status === 'approved'){
           const q = query(ridesRef, where("departure", "==", departure.toLowerCase()) ,
                                     where("arrival", "==", arrival.toLowerCase()),
                                     where("departure_date", "==", departure_date) , 
@@ -189,6 +204,10 @@ export const NetworkProvider = ({children})=>{
           const snapshot = await getDocs(q);
           const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           return data 
+        }
+        else {
+          throw new Error('You need director approval first')
+        }
 
       }
       else {
@@ -205,7 +224,7 @@ export const NetworkProvider = ({children})=>{
     }
   }
 
-  const changePassangerStatus = async (id , newStatus , networkId)=>{
+  const changeUserStatus = async (id , newStatus , networkId , role)=>{
     try {
       setIsLoading(true)
 
@@ -216,9 +235,15 @@ export const NetworkProvider = ({children})=>{
       const data = snapshot.data();
 
       if (userData?.role == 'director'){
-        const updatedPass = data.passangers.map(p => p.id === id ? {...p , status : newStatus} : p)
-        console.log(data.passangers)
-        await updateDoc(docRef , {passangers : updatedPass})
+        let updateUsers
+        if (role === 'passanger'){
+          updateUsers = data.passangers.map(p => p.id === id ? {...p , status : newStatus} : p)
+        }
+        else if (role === 'driver'){
+          updateUsers = data.drivers.map(p => p.id === id ? {...p , status : newStatus} : p)
+        }
+        
+        await updateDoc(docRef , {[`${role}s`] : updateUsers})
         toast.success('User status changed successfully')
       }
       else {
@@ -273,7 +298,7 @@ export const NetworkProvider = ({children})=>{
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changePassangerStatus , isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changeUserStatus , isLoading , networksList}}>
         {children}
     </NetworkContext.Provider>
 }

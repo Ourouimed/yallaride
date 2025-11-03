@@ -1,8 +1,9 @@
 'use client';
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { useTheme } from "@/context/ThemeContext";
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 export default function Header(){
     const links = [
@@ -23,7 +24,14 @@ export default function Header(){
             name : 'Contact us'
         }
     ]
-    const {theme , toggleTheme } = useTheme()
+    const { theme, setTheme } = useTheme()
+
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => setMounted(true), [])
+
+    if (!mounted) {
+        return <Button variant="ghost" size="icon" disabled={true}></Button>
+    }
     return <header className="flex fixed top-0 w-full items-center justify-between z-10 bg-background px-20 py-5 border-b border-border">
         <div>
             <Image className='dark:hidden' src='/assets/logo-light.svg' alt="logo" height={35} width={125}></Image>
@@ -40,7 +48,7 @@ export default function Header(){
             </nav>
 
             <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={toggleTheme}>
+                <Button variant="outline" onClick={()=> setTheme(theme === "light" ? "dark" : "light")}>
                     {theme === 'dark' ? <Sun/> : <Moon/>}
                 </Button>
                 <Button href="/login">Get started</Button>

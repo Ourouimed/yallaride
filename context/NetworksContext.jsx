@@ -148,7 +148,7 @@ export const NetworkProvider = ({children})=>{
             {
                 ...rideData , 
                 available_seats : rideData.total_seats,
-                driver : userData,
+                driver : {...userData , id : auth.currentUser.uid},
                 network_id : networkId,
                 passangers : [],
                 ride_status : 'pending' ,
@@ -286,6 +286,79 @@ export const NetworkProvider = ({children})=>{
       setIsLoading(false)
     }
   }
+
+  const bookRide = async ({driver : { id } , rideId , 
+    departure , departure_date , departure_time ,
+    arrival , arrival_date , arrival_time , price , available_seats} , booked_seats , networkId)=>{
+    try {
+      setIsLoading(true)
+      const inviteCode = generateInviteCode()
+
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+      const userData = userDoc.data();
+
+      const networkRef = doc(db, "networks", networkId);
+      const networkSnapshot = await getDoc(networkRef);
+
+      const networkData = networkSnapshot.data();
+      const networkpassanger = networkData.passangers.find(p => p.id === auth.currentUser.uid);
+
+
+      const rideRef = doc(db, "rides", rideId);
+      const rideSnapshot = await getDoc(rideRef);
+
+      const rideData = rideSnapshot.data();
+      const ridePassanger = rideData.passangers.find(p => p.id === auth.currentUser.uid);
+
+      if (!networkpassanger && !ridePassanger){
+        throw new Error('Unknown error') 
+      }
+
+      const status = networkpassanger.status
+      console.log(ridePassanger)
+      const booked = ridePassanger !== undefined ? true : false
+
+      if (userData?.role === 'passanger'){
+        if (status === 'approved'){
+          if (!booked) {
+            await setDoc(doc(db , 'booking' , `book-${inviteCode}`) , 
+            {
+                driver : id ,
+                passanger : auth.currentUser.uid , 
+                ride_id : rideId,
+                departure_date , 
+                departure_time ,
+                arrival , 
+                arrival_date , 
+                arrival_time , 
+                booked_seats ,
+                price : price * booked_seats , 
+                networkId ,
+                bookedAt : new Date()
+            })
+            
+            await updateDoc(doc(db , 'rides' , rideId) , {available_seats : available_seats - booked_seats , 
+              passangers : arrayUnion({...userData , id : auth.currentUser.uid})})
+            toast.success('Ride Booked successfully')
+          }
+          else {
+            throw new Error('ride already booked')
+          }
+        }
+        else {
+          throw new Error('you need admin approval first')
+        }
+      }
+
+      
+    }
+    catch (error){
+      toast.error(error.message)
+    }
+    finally{
+      setIsLoading(false)
+    }
+  }
   useEffect(()=>{
     const unsubscribe = onAuthStateChanged(auth , async (user)=>{
         if (user){
@@ -326,7 +399,7 @@ export const NetworkProvider = ({children})=>{
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changeUserStatus , getRide , isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , isLoading , networksList}}>
         {children}
     </NetworkContext.Provider>
 }

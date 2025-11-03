@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input"
 
 export default function RidePage() {
   const { rideId, networkId } = useParams()
-  const { getRide, isLoading } = useNetwork()
+  const { getRide, isLoading , bookRide} = useNetwork()
   const { user } = useAuth()
 
   const [rideData, setRideData] = useState(null)
@@ -37,9 +37,9 @@ export default function RidePage() {
     if (rideId) fetchRide()
   }, [rideId, networkId, getRide])
 
-  const handleBookSeats = () => {
+  const handleBookSeats = async () => {
     if (!rideData) return
-    console.log(`Booked ${seatsToBook} seats for ride ${rideId}`)
+    await bookRide({...rideData , rideId} , seatsToBook , networkId)
   }
 
   return (
@@ -54,18 +54,18 @@ export default function RidePage() {
           )}
         </div>
 
-        {isLoading && (
+        {/* {isLoading && (
           <div className="space-y-4">
             <Skeleton className="h-24 w-full rounded-lg" />
             <Skeleton className="h-24 w-full rounded-lg" />
           </div>
-        )}
+        )} */}
 
-        {!isLoading && rideData && (
+        {rideData && (
           <div className="grid grid-cols-1 md:grid-cols-[7fr_3fr] gap-5">
-            {/* === LEFT SIDE (Ride Info) === */}
+            
             <div className="space-y-4">
-              {/* Ride Summary */}
+
               <Card>
                 <CardHeader className="flex items-center gap-3">
                   <div className="size-12 rounded-full bg-secondary flex items-center justify-center">
@@ -107,7 +107,7 @@ export default function RidePage() {
                 </CardContent>
               </Card>
 
-              {/* Driver & Car Info */}
+             
               <Card>
                 <CardHeader className="flex items-center gap-3">
                   <div className="size-12 rounded-full bg-secondary flex items-center justify-center">
@@ -153,19 +153,19 @@ export default function RidePage() {
                   <CardHeader>
                     <CardTitle className="text-base font-semibold flex items-center gap-2">
                       <Users className="size-4" />
-                      Passengers
+                      Passangers
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {rideData?.passengers?.length > 0 ? (
+                    {rideData?.passangers?.length > 0 ? (
                       <ul className="list-disc list-inside text-sm text-muted-foreground">
-                        {rideData.passengers.map((p, i) => (
+                        {rideData.passangers.map((p, i) => (
                           <li key={i}>{p.fullname}</li>
                         ))}
                       </ul>
                     ) : (
                       <p className="text-sm text-muted-foreground">
-                        No passengers yet.
+                        No passangers yet.
                       </p>
                     )}
                   </CardContent>
@@ -203,13 +203,15 @@ export default function RidePage() {
                       onClick={handleBookSeats}
                       disabled={
                         seatsToBook < 1 ||
-                        seatsToBook > rideData.available_seats
+                        seatsToBook > rideData.available_seats ||
+                        rideData.available_seats == 0 ||
+                        isLoading
                       }
                       className="w-full"
                     >
-                      Book {seatsToBook} Seat
-                      {seatsToBook > 1 ? "s" : ""} (
-                      {rideData.price * seatsToBook} MAD)
+                      {isLoading ? 'Booking...' : `Book ${seatsToBook} Seat
+                      ${seatsToBook > 1 ? "s" : ""} (
+                      ${rideData.price * seatsToBook} MAD)`}
                     </Button>
                   </CardContent>
                 </Card>

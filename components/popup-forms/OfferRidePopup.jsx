@@ -17,7 +17,7 @@ export default function OfferRidePopup({networkId}){
         arrival_date : '' , 
         arrival_time : '' ,
         price : '' ,
-        available_seats : 0
+        total_seats : 0
     })
     const [departureDate , setDepartureDate] = useState(undefined)
     const [arrivalDate , setArrivalDate] = useState(undefined)
@@ -33,7 +33,7 @@ export default function OfferRidePopup({networkId}){
         if (!rideData.departure_date) newErrors.departure_date = "Ride departure date is required"
         if (!rideData.departure_time) newErrors.departure_time = "Ride departure time is required"
         if (!rideData.price || rideData.price < 0) newErrors.price = "Ride price is required"
-        if (!rideData.available_seats || rideData.available_seats < 1) newErrors.available_seats = "Ride available seats is required"
+        if (!rideData.total_seats || rideData.total_seats < 1) newErrors.total_seats = "Ride available seats is required"
         setValidationErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -117,9 +117,9 @@ export default function OfferRidePopup({networkId}){
 
             <div className="space-y-2 flex items-center gap-2 w-full">
                 <div className="w-full mb-0 space-y-2">
-                    <Label htmlFor='available_seats'>Number of seats</Label>
-                    <Input type='number' id='available_seats' placeholder='0' onChange={handleChange} value={rideData.available_seats}></Input>
-                    {validationError.available_seats && <p className="text-red-500 text-sm">{validationError.available_seats}</p>}
+                    <Label htmlFor='total_seats'>Number of seats</Label>
+                    <Input type='number' id='total_seats' placeholder='0' onChange={handleChange} value={rideData.total_seats}></Input>
+                    {validationError.total_seats && <p className="text-red-500 text-sm">{validationError.total_seats}</p>}
                 </div>
                 <div className="w-full mb-0 space-y-2">
                     <Label htmlFor='price'>Ride Price (MAD)</Label>

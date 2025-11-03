@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useNetwork } from "@/context/NetworksContext";
 import DatePicker from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Car, MapPin, MapPinned, User } from "lucide-react";
+import { ArrowRight, Car, MapPin, MapPinned, User, Users } from "lucide-react";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -160,6 +160,13 @@ export default function FindRidePage(){
                                         <Car/>
                                         <h4 className="font-semibold">
                                             {ride.driver.fullname}
+                                        </h4>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <Users/>
+                                        <h4 className="font-semibold">
+                                            {ride.total_seats - ride.available_seats} / {ride.total_seats}
                                         </h4>
                                     </div>
                                 </div>

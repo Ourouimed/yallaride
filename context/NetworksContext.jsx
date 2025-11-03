@@ -106,7 +106,6 @@ export const NetworkProvider = ({children})=>{
         const currNetwork = doc(db , 'networks' , id)
         const snapshot = await getDoc(currNetwork)
         const data = snapshot.data()
-        console.log(data)
         if (snapshot.exists()) {
           const isAuthorized =
             data.directorId === userId ||
@@ -148,6 +147,7 @@ export const NetworkProvider = ({children})=>{
           await setDoc(doc(db , 'rides' , `ride-${inviteCode}`) , 
             {
                 ...rideData , 
+                available_seats : rideData.total_seats,
                 driver : userData,
                 network_id : networkId,
                 passangers : [],
@@ -173,6 +173,7 @@ export const NetworkProvider = ({children})=>{
       setIsLoading(false)
     }
   }
+
 
   const findRide = async ({departure , arrival , departure_date} , networkId)=>{
     try {
@@ -258,6 +259,33 @@ export const NetworkProvider = ({children})=>{
       setIsLoading(false)
     }
   }
+
+  const getRide = async (id , networkId)=>{
+    try {
+        const userId = auth.currentUser.uid;
+        const network = doc(db , 'networks' , networkId)
+        const networkSnapshot = await getDoc(network)
+        const networkData = networkSnapshot.data()
+
+        const ride = doc(db , 'rides' , id)
+        const rideSnapshot = await getDoc(ride)
+        const rideData = rideSnapshot.data()
+        if (networkSnapshot.exists() && rideSnapshot.exists()) {
+          const isAuthorized =
+            networkData.directorId === userId ||
+            networkData.passangersIds?.includes(userId) ||
+            networkData.driversIds?.includes(userId);
+          return isAuthorized ? rideData : null;
+        }
+        return null
+    }
+    catch (error){
+        toast.error(error.message)
+    }
+    finally{
+      setIsLoading(false)
+    }
+  }
   useEffect(()=>{
     const unsubscribe = onAuthStateChanged(auth , async (user)=>{
         if (user){
@@ -298,7 +326,7 @@ export const NetworkProvider = ({children})=>{
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changeUserStatus , isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changeUserStatus , getRide , isLoading , networksList}}>
         {children}
     </NetworkContext.Provider>
 }

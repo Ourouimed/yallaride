@@ -12,7 +12,6 @@ import StatsCard from "@/components/ui/stats-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Popover , PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
 import { Select , SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function NetworkPage(){
@@ -48,18 +47,19 @@ export default function NetworkPage(){
             <div className="flex items-center justify-between">
                 <h3 className="text-xl"><span className="font-semibold">{networkData.name}</span>'s network</h3>
                 <div className="flex items-center gap-2">
+                    <p className="text-sm text-muted-foreground">
+                        Network ID: <span className="font-medium">{networkId}</span>
+                    </p>
                     {user?.role == 'director' ? <>
+                    
                         <Button variant='outline' className='size-10 p-2 rounded-full'>
                             <Settings/>
-                        </Button>
-                        <Button className='size-10 p-2 rounded-full'>
-                            <Plus/>
                         </Button>
                     </> : user?.role == 'driver' ? <>
                                 <Button className='rounded-md' onClick={()=> openPopup('Offer ride' , <OfferRidePopup networkId={networkId}/>)}>
                                     Offer Ride<Plus/>
                                 </Button> 
-                        </>: user?.role == 'passanger' ? <>
+                        </>: user?.role == 'passenger' ? <>
                                 <Button className='rounded-md' href={`/dashboard/network/${networkId}/find`}>
                                     Find Ride
                                 </Button> 
@@ -76,11 +76,11 @@ export default function NetworkPage(){
                             <div className="space-y-3">
                                 <div className="grid grid-cols sm:grid-cols-2 gap-2">
                                     <StatsCard title='total drivers' icon={CarFront} statnumber={networkData.drivers.length}/>
-                                    <StatsCard title='total passangers' icon={Users} statnumber={networkData.passangers.length}/>
+                                    <StatsCard title='total passengers' icon={Users} statnumber={networkData.passengers.length}/>
                                     <StatsCard title='total rides' icon={MapPin} statnumber={networkData.drivers.length}/>
                                 </div>
                                 <div className="space-y-2">
-                                    <h3>Passangers</h3>
+                                    <h3>passengers</h3>
                                     <Table className='border border-border'>
                                         <TableHeader>
                                             <TableRow>
@@ -105,7 +105,7 @@ export default function NetworkPage(){
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                                {networkData.passangers.map(p => <TableRow key={p.id}>
+                                                {networkData.passengers.map(p => <TableRow key={p.id}>
                                                     <TableCell>
                                                         {p.id}
                                                     </TableCell>

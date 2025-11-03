@@ -9,12 +9,12 @@ import { Select , SelectGroup, SelectTrigger , SelectContent, SelectItem, Select
 import { useState } from "react";
 import RegisterDirectorRole from "@/components/forms/RegisterDirectorRole";
 import RegisterDriverRole from "@/components/forms/RegisterDriverRole";
-import RegisterPassangerRole from "@/components/forms/RegisterPassangerRole";
+import RegisterPassengerRole from "@/components/forms/RegisterPassengerRole";
 import { useAuth } from "@/context/AuthContext";
 
 export default function Register() {
 
-  const roles = ['director' , 'passanger' , 'driver']
+  const roles = ['director' , 'passenger' , 'driver']
   const [ currRole , setCurrRole] = useState('')
   const [ currStep , setCurrStep] = useState(1)
   const [ registerForm , setRegisterForm ] = useState({
@@ -23,6 +23,7 @@ export default function Register() {
     email : ''  , 
     password : '' , 
     confirmpassword : '' ,
+    phone : '' ,
     roleform : {}
   })
   const [validationError , setValidationErrors] = useState({})
@@ -35,7 +36,22 @@ export default function Register() {
     if (currStep == 1){
       if (!currRole) newErrors.role = "role is required"
       if (!registerForm.fullname.trim()) newErrors.fullname = "full name is required"
-      if (!registerForm.birthdate.trim()) newErrors.birthdate = "birthdate is required" 
+      if (!registerForm.phone.trim()) newErrors.phone = "Phone number is required"
+      if (!registerForm.birthdate.trim()) {
+        newErrors.birthdate = "Birthdate is required";
+      } else {
+        const today = new Date();
+        const birthDate = new Date(registerForm.birthdate);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        const dayDiff = today.getDate() - birthDate.getDate();
+
+        const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+
+        if (actualAge < 18) {
+          newErrors.birthdate = "You must be at least 18 years old";
+        }
+      }
 
       if (currRole === 'director') {
         const institution = registerForm.roleform?.institution || '';
@@ -80,8 +96,7 @@ export default function Register() {
   const handleNextStep = ()=>{
     if (validateForm()){
       if (currStep === 2) {
-        const {email , password , fullname , birthdate , roleform } = registerForm
-        registerUser({email , password , fullname , birthdate , roleform})
+        registerUser(registerForm)
       }
     else {
       setCurrStep(s => s + 1)
@@ -155,8 +170,8 @@ export default function Register() {
                   registerForm={registerForm} 
                   errors={validationError}
                   currRole={currRole}/> 
-                : currRole == 'passanger' &&
-                  <RegisterPassangerRole 
+                : currRole == 'passenger' &&
+                  <RegisterPassengerRole 
                     setRegisterForm={setRegisterForm} 
                     registerForm={registerForm} 
                     errors={validationError}

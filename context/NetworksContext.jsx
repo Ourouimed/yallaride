@@ -34,11 +34,11 @@ export const NetworkProvider = ({children})=>{
                 ...data , 
                 directorId : auth.currentUser.uid,
                 director : userData,
-                passangers : [] , 
+                passengers : [] , 
                 drivers : [],
-                passangersIds : [],
+                passengersIds : [],
                 driversIds : [],
-                createdAt : new Date()
+                created_at : new Date()
             })
         toast.success('Network created successfully')
       }
@@ -63,14 +63,17 @@ export const NetworkProvider = ({children})=>{
       const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       const userData = userDoc.data();
       const docRef = doc(db , 'networks' , id)
-      if (userData?.role == 'passanger'){
+      if (userData?.role == 'passenger'){
         await updateDoc(docRef , {
-          passangersIds : arrayUnion(auth.currentUser.uid) , 
-          passangers : arrayUnion(
-                      {...userData ,
+          passengerIds : arrayUnion(auth.currentUser.uid) , 
+          passenger : arrayUnion(
+                      {
                         id : auth.currentUser.uid , 
+                        fullname : userData.fullname , 
+                        email : userData.email ,
+                        phone : userData.phone ,
                         status : 'pending' , 
-                        joinedAt : new Date()
+                        joined_at : new Date()
                       })
         })
         toast.success('Network joined successfully')
@@ -80,6 +83,9 @@ export const NetworkProvider = ({children})=>{
           driversIds : arrayUnion(auth.currentUser.uid) , 
           drivers : arrayUnion({...userData ,
                         id : auth.currentUser.uid , 
+                        fullname : userData.fullname , 
+                        email : userData.email ,
+                        phone : userData.phone ,
                         status : 'pending' , 
                         joinedAt : new Date()
                       })
@@ -109,7 +115,7 @@ export const NetworkProvider = ({children})=>{
         if (snapshot.exists()) {
           const isAuthorized =
             data.directorId === userId ||
-            data.passangersIds?.includes(userId) ||
+            data.passengerIds?.includes(userId) ||
             data.driversIds?.includes(userId);
           return isAuthorized ? data : null;
         }
@@ -150,7 +156,7 @@ export const NetworkProvider = ({children})=>{
                 available_seats : rideData.total_seats,
                 driver : {...userData , id : auth.currentUser.uid},
                 network_id : networkId,
-                passangers : [],
+                passengers : [],
                 ride_status : 'pending' ,
                 createdAt : new Date()
             })
@@ -186,17 +192,17 @@ export const NetworkProvider = ({children})=>{
       const snapshot = await getDoc(networkRef);
 
       const data = snapshot.data();
-      const passanger = data.passangers.find(p => p.id === auth.currentUser.uid);
+      const passenger = data.passengers.find(p => p.id === auth.currentUser.uid);
 
-      if (!passanger){
+      if (!passenger){
         throw new Error('Unknown error') 
       }
 
-      const status = passanger.status
+      const status = passenger.status
 
 
 
-      if (userData?.role === 'passanger'){
+      if (userData?.role === 'passenger'){
         if (status === 'approved'){
           const q = query(ridesRef, where("departure", "==", departure.toLowerCase()) ,
                                     where("arrival", "==", arrival.toLowerCase()),
@@ -237,8 +243,8 @@ export const NetworkProvider = ({children})=>{
 
       if (userData?.role == 'director'){
         let updateUsers
-        if (role === 'passanger'){
-          updateUsers = data.passangers.map(p => p.id === id ? {...p , status : newStatus} : p)
+        if (role === 'passenger'){
+          updateUsers = data.passengers.map(p => p.id === id ? {...p , status : newStatus} : p)
         }
         else if (role === 'driver'){
           updateUsers = data.drivers.map(p => p.id === id ? {...p , status : newStatus} : p)
@@ -273,7 +279,7 @@ export const NetworkProvider = ({children})=>{
         if (networkSnapshot.exists() && rideSnapshot.exists()) {
           const isAuthorized =
             networkData.directorId === userId ||
-            networkData.passangersIds?.includes(userId) ||
+            networkData.passengersIds?.includes(userId) ||
             networkData.driversIds?.includes(userId);
           return isAuthorized ? rideData : null;
         }
@@ -301,30 +307,29 @@ export const NetworkProvider = ({children})=>{
       const networkSnapshot = await getDoc(networkRef);
 
       const networkData = networkSnapshot.data();
-      const networkpassanger = networkData.passangers.find(p => p.id === auth.currentUser.uid);
+      const networkpassenger = networkData.passengers.find(p => p.id === auth.currentUser.uid);
 
 
       const rideRef = doc(db, "rides", rideId);
       const rideSnapshot = await getDoc(rideRef);
 
       const rideData = rideSnapshot.data();
-      const ridePassanger = rideData.passangers.find(p => p.id === auth.currentUser.uid);
+      const ridepassenger = rideData.passengers.find(p => p.id === auth.currentUser.uid);
 
-      if (!networkpassanger && !ridePassanger){
+      if (!networkpassenger && !ridepassenger){
         throw new Error('Unknown error') 
       }
 
-      const status = networkpassanger.status
-      console.log(ridePassanger)
-      const booked = ridePassanger !== undefined ? true : false
+      const status = networkpassenger.status
+      const booked = ridepassenger !== undefined ? true : false
 
-      if (userData?.role === 'passanger'){
+      if (userData?.role === 'passenger'){
         if (status === 'approved'){
           if (!booked) {
             await setDoc(doc(db , 'booking' , `book-${inviteCode}`) , 
             {
                 driver : id ,
-                passanger : auth.currentUser.uid , 
+                passenger : auth.currentUser.uid , 
                 ride_id : rideId,
                 departure_date , 
                 departure_time ,
@@ -338,7 +343,7 @@ export const NetworkProvider = ({children})=>{
             })
             
             await updateDoc(doc(db , 'rides' , rideId) , {available_seats : available_seats - booked_seats , 
-              passangers : arrayUnion({...userData , id : auth.currentUser.uid})})
+              passengers : arrayUnion({...userData , id : auth.currentUser.uid})})
             toast.success('Ride Booked successfully')
           }
           else {
@@ -373,8 +378,8 @@ export const NetworkProvider = ({children})=>{
                 else if (userData?.role === 'driver'){
                   q = query(networksRef , where("driversIds", "array-contains", user.uid));
                 }
-                else if (userData?.role === 'passanger'){
-                  q = query(networksRef , where("passangersIds", "array-contains", user.uid));
+                else if (userData?.role === 'passenger'){
+                  q = query(networksRef , where("passengerIds", "array-contains", user.uid));
                 }
                 else {
                   throw new Error('Unvalid user')

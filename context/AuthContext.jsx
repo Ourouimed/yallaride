@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 }, []);
 
 
-  const registerUser = async ({ email, password, fullname, birthdate, roleform })=>{
+  const registerUser = async ({ email, password, fullname, birthdate, roleform , phone})=>{
     try {
       setIsLoading(true)
       const { user } = await createUserWithEmailAndPassword(auth, email, password)
@@ -37,11 +37,12 @@ export const AuthProvider = ({ children }) => {
       await setDoc(doc(db, "users", user.uid), {
         email,
         fullname,
+        phone ,
         birthdate,
         bio : '' ,
         role : roleform.role ,
         roleform, 
-        createdAt: new Date(),
+        created_at: new Date(),
       });
 
       toast.success('User registred successfully')
@@ -50,7 +51,6 @@ export const AuthProvider = ({ children }) => {
       setUser({ uid: user.uid, ...docSnap.data() });
       router.push('/login')
     } catch (error){
-        console.log(error)
         toast.error(error.message)
     } finally {
       setIsLoading(false)

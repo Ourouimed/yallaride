@@ -18,6 +18,7 @@ export default function ProfilePage (){
         fullname : '', 
         birthdate : '' , 
         bio : '' , 
+        phone : '' ,
         email : ''  , 
         password : '' , 
         confirmpassword : '' ,
@@ -70,13 +71,19 @@ export default function ProfilePage (){
                 </div>
             </div>
             
-            <div className="space-y-2">
-                <Label htmlFor='birthdate'>Date of birth</Label>
-                <DatePicker
-                    id="birthdate"
-                    date={profile.birthdate ? new Date(profile.birthdate) : undefined}
-                    setDate={handleDateChange}
-                    />
+            <div className="space-y-2 flex items-center gap-2 w-full">
+                <div className="w-full mb-0">
+                    <Label htmlFor="phone">phone number</Label>
+                    <Input id="phone" type="text" placeholder={user?.phone} onChange={handleChange} value={profile.phone}/>
+                </div>
+                <div className="space-y-2 w-full">
+                    <Label htmlFor='birthdate'>Date of birth</Label>
+                    <DatePicker
+                        id="birthdate"
+                        date={profile.birthdate ? new Date(profile.birthdate) : undefined}
+                        setDate={handleDateChange}
+                        />
+                </div>
             </div>
             <div className="space-y-2">
                 <Label htmlFor='bio'>Bio</Label>

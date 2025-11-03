@@ -17,8 +17,8 @@ export default function NetworksPage(){
         <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold py-2">Networks</h3>
             {user?.role === 'director' ? 
-            <Button onClick={() => openPopup("Create new Network", <NetworkPopup />)}>Create new Network</Button> :
-            <Button onClick={()=> openPopup('Join a network' , <JoinNetworkPopup/>)}>Join Network</Button>}
+                <Button onClick={() => openPopup("Create new Network", <NetworkPopup />)}>Create new Network</Button> :
+                <Button onClick={()=> openPopup('Join a network' , <JoinNetworkPopup/>)}>Join Network</Button>}
             
         </div>
         <div className="grid grid-cols sm:grid-cols-3 gap-2">
@@ -31,7 +31,7 @@ export default function NetworksPage(){
 
   <CardFooter className='flex justify-between gap-3'>
     <div className="flex items-center gap-1">
-        <p className="flex items-center gap-1"><User2 className='text-sm'/> {net.passangers.length || 0}</p>
+        <p className="flex items-center gap-1"><User2 className='text-sm'/> {net.passengers.length || 0}</p>
         <p className="flex items-center gap-1"><Car className='text-sm'/> {net.drivers.length || 0}</p>
     </div>
     <Button href={`/dashboard/network/${net.id}`}>View</Button>

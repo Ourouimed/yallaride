@@ -44,6 +44,12 @@ export default function RegisterDirectorRole({ setRegisterForm, registerForm , e
       </div>
 
       <div className="space-y-2">
+            <Label htmlFor="fullname">Phone number</Label>
+            <Input id="phone" type="tel" placeholder="06XXXXXXXX" onChange={handleChange} value={registerForm.phone}/>
+            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+      </div>
+
+      <div className="space-y-2">
         <Label htmlFor="birthdate">Date of birth</Label>
         <DatePicker
           id="birthdate"

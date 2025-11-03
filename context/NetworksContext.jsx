@@ -66,14 +66,23 @@ export const NetworkProvider = ({children})=>{
       if (userData?.role == 'passanger'){
         await updateDoc(docRef , {
           passangersIds : arrayUnion(auth.currentUser.uid) , 
-          passangers : arrayUnion({...userData ,id : [auth.currentUser.uid] })
+          passangers : arrayUnion(
+                      {...userData ,
+                        id : auth.currentUser.uid , 
+                        status : 'pending' , 
+                        joinedAt : new Date()
+                      })
         })
         toast.success('Network joined successfully')
       }
       else if (userData?.role == 'driver'){
         await updateDoc(docRef , {
           driversIds : arrayUnion(auth.currentUser.uid) , 
-          drivers : arrayUnion({...userData ,id : [auth.currentUser.uid] })
+          drivers : arrayUnion({...userData ,
+                        id : auth.currentUser.uid , 
+                        status : 'pending' , 
+                        joinedAt : new Date()
+                      })
         })
         toast.success('Network joined successfully')
       }
@@ -176,6 +185,35 @@ export const NetworkProvider = ({children})=>{
       setIsLoading(false)
     }
   }
+
+  const changePassangerStatus = async (id , newStatus , networkId)=>{
+    try {
+      setIsLoading(true)
+
+      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+      const userData = userDoc.data();
+      const docRef = doc(db , 'networks' , networkId)
+      const snapshot = await getDoc(docRef)
+      const data = snapshot.data();
+
+      if (userData?.role == 'director'){
+        const updatedPass = data.passangers.map(p => p.id === id ? {...p , status : newStatus} : p)
+        console.log(data.passangers)
+        await updateDoc(docRef , {passangers : updatedPass})
+        toast.success('User status changed successfully')
+      }
+      else {
+        throw new Error('You do not have permission to create Ride')
+      }
+    }
+    catch (error){
+      console.log(error)
+      toast.error(error.message)
+    }
+    finally{
+      setIsLoading(false)
+    }
+  }
   useEffect(()=>{
     const unsubscribe = onAuthStateChanged(auth , async (user)=>{
         if (user){
@@ -216,7 +254,7 @@ export const NetworkProvider = ({children})=>{
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changePassangerStatus , isLoading , networksList}}>
         {children}
     </NetworkContext.Provider>
 }

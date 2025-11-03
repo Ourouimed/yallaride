@@ -4,19 +4,33 @@ import DashboardLayout from "../../dashboardLayout";
 import { useNetwork } from "@/context/NetworksContext";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings } from "lucide-react";
+import { CarFront, EllipsisVertical, MapPin, Plus, Settings, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePopup } from "@/context/PopupContext";
 import OfferRidePopup from "@/components/popup-forms/OfferRidePopup";
+import StatsCard from "@/components/ui/stats-card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Popover , PopoverContent, PopoverTrigger} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Select , SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function NetworkPage(){
     const params = useParams(); 
     const { networkId } = params;
     const [networkData , setNetworkData] = useState(null)
-    const { getNetwork } = useNetwork()
+    const { isLoading , getNetwork , changePassangerStatus} = useNetwork()
     const { user } = useAuth()
-    const { openPopup  } = usePopup()
+    const { openPopup } = usePopup()
+    const passStatus = ['pending' , 'approved' , 'denied']
+    const [currPassStatus , setCurrPassStatus] = useState('')
 
+ 
+
+    const handleChangePassStatus = async (id)=>{
+        await changePassangerStatus(id , currPassStatus , networkId)
+    }
+ 
 
     useEffect(() => {
     const fetchNetwork = async () => {
@@ -29,7 +43,8 @@ export default function NetworkPage(){
 
 
     return <DashboardLayout>
-        {!networkData ? <p>Network unfound!!</p> : <>
+        {!networkData ? <p>Network unfound!!</p> : 
+        <>
             <div className="flex items-center justify-between">
                 <h3 className="text-xl"><span className="font-semibold">{networkData.name}</span>'s network</h3>
                 <div className="flex items-center gap-2">
@@ -49,9 +64,104 @@ export default function NetworkPage(){
                                     Find Ride
                                 </Button> 
                         </> : null}
+
+
+                    
                     
                 </div>
             </div>
+
+            {user?.role == 'director' && <>
+                        <div className="grid grid-cols-[6fr_3fr] gap-5">
+                            <div className="space-y-3">
+                                <div className="grid grid-cols sm:grid-cols-2 gap-2">
+                                    <StatsCard title='total drivers' icon={CarFront} statnumber={networkData.drivers.length}/>
+                                    <StatsCard title='total passangers' icon={Users} statnumber={networkData.passangers.length}/>
+                                    <StatsCard title='total rides' icon={MapPin} statnumber={networkData.drivers.length}/>
+                                </div>
+                                <div className="space-y-2">
+                                    <h3>Passangers</h3>
+                                    <Table className='border border-border'>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>
+                                                #
+                                            </TableHead>
+                                            <TableHead>
+                                                full name
+                                            </TableHead>
+                                            <TableHead>
+                                                email
+                                            </TableHead>
+                                            <TableHead>
+                                                status
+                                            </TableHead>
+                                            <TableHead>
+                                                joined at
+                                            </TableHead>
+                                            <TableHead/>
+                                            
+                                    
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                            {networkData.passangers.map(p => <TableRow key={p.id}>
+                                                <TableCell>
+                                                    {p.id}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {p.fullname}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {p.email}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge variant={p.status}>
+                                                        {p.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {p.joinedAt.toDate().toISOString().split('T')[0]}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild className='cursor-pointer'>
+                                                            <EllipsisVertical/>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent>
+                                                            <div className="flex items-center gap-2">
+                                                                <Select id='status'  defaultValue={p.status} onValueChange={(value) => setCurrPassStatus(value)}>
+                                                                    <SelectTrigger className='w-full'>
+                                                                        <SelectValue placeholder="Select a fruit" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            <SelectLabel>Status</SelectLabel>
+                                                                            {passStatus.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <Button  disabled={isLoading} onClick={()=> handleChangePassStatus(p.id)}>{isLoading? 'Saving...' : 'Save'}</Button>
+                                                            </div>
+                                                           
+                                                                
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    
+                                                </TableCell>
+                                            </TableRow>)}
+                                    </TableBody>
+                                    
+                                    </Table>
+                                </div>
+                            </div>
+                            <div>
+                                
+                                
+                            </div>
+                        </div>
+                    
+                    </>}
         </>}
     </DashboardLayout>
 }

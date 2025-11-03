@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Car, MapPin, MapPinned, User } from "lucide-react";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function FindRidePage(){
     const [rideData , setRideData] = useState({
@@ -21,6 +22,7 @@ export default function FindRidePage(){
         const [validationError , setValidationErrors] = useState({})
         const { isLoading , findRide} = useNetwork()
         const { networkId } = useParams()
+        const { user } = useAuth()
     
          const validateForm = () => {
             const newErrors = {}
@@ -68,7 +70,8 @@ export default function FindRidePage(){
             }));
         };
     return <DashboardLayout>
-        <Card>
+       {user?.role === 'passanger' ? <>
+         <Card>
             <CardHeader className='!pb-3 border-b border-border'>
                 <CardTitle>
                     Find Ride
@@ -119,10 +122,13 @@ export default function FindRidePage(){
             <div>
                 {availableRides.length >= 1  ? <>
                     
-                    <p className="flex items-center gap-2 mb-5">
-                        <span className="font-semibold">{rideData.departure_date}</span>
-                        {rideData.departure} <ArrowRight/> {rideData.arrival}
-                    </p>
+                    <div className="flex items-center justify-between mb-5">
+                        <div className="flex items-center gap-2">
+                            <span className="font-semibold">{rideData.departure_date}</span>
+                            {rideData.departure} <ArrowRight/> {rideData.arrival}
+                        </div>
+                        {availableRides.length} available ride{availableRides.length > 1 && 's'}
+                    </div>
 
                     <div className="space-y-2">
                         {availableRides.map(ride => 
@@ -148,10 +154,16 @@ export default function FindRidePage(){
                                     <span><span className="font-semibold text-2xl">{ride.price}</span>MAD</span>
                                 </div>
                             </CardHeader>
-                            <CardContent>
-                                <div>
-                                    <User></User>
+                            <CardContent className='flex justify-between items-center w-full '>
+                                <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <Car/>
+                                        <h4 className="font-semibold">
+                                            {ride.driver.fullname}
+                                        </h4>
+                                    </div>
                                 </div>
+                                <Button href={`/dashboard/network/${networkId}/rides/${ride.id}`}>Book Now</Button>
                             </CardContent>
                         </Card>)} 
                     </div>
@@ -160,5 +172,6 @@ export default function FindRidePage(){
                 
             </div>
         </div>
+       </> : <p>You don't have access to this page</p>}
     </DashboardLayout>
 }   

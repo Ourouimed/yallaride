@@ -130,9 +130,23 @@ export const NetworkProvider = ({children})=>{
       const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       const userData = userDoc.data();
 
+      const networkRef = doc(db, "networks", networkId);
+      const snapshot = await getDoc(networkRef);
+
+      const data = snapshot.data();
+      const driver = data.drivers.find(p => p.id === auth.currentUser.uid);
+
+      if (!driver){
+        throw new Error('Unknown error') 
+      }
+
+      const status = driver.status
+      console.log(status)
+
 
       if (userData?.role == 'driver'){
-        await setDoc(doc(db , 'rides' , `ride-${inviteCode}`) , 
+        if (status === 'approved'){
+          await setDoc(doc(db , 'rides' , `ride-${inviteCode}`) , 
             {
                 ...rideData , 
                 driver : userData,
@@ -141,7 +155,12 @@ export const NetworkProvider = ({children})=>{
                 ride_status : 'pending' ,
                 createdAt : new Date()
             })
-        toast.success('Ride created successfully')
+          toast.success('Ride created successfully')
+        }
+        else {
+          throw new Error('You need director approval first')
+        }
+        
       }
       else {
         throw new Error('You do not have permission to create Ride')

@@ -28,7 +28,7 @@ export const NetworkProvider = ({children})=>{
 
 
       if (userData?.role == 'director'){
-        await setDoc(doc(db , 'networks' , inviteCode) , 
+        await setDoc(doc(db , 'networks' , `network-${inviteCode}`) , 
             {
                 ...data , 
                 directorId : auth.currentUser.uid,
@@ -62,6 +62,10 @@ export const NetworkProvider = ({children})=>{
     const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
     const userData = userDoc.data();
     if (!userData) throw new Error("User data not found");
+
+    if (!id) {
+      throw new Error('Invite code cannot be null')
+    }
 
     const docRef = doc(db, 'networks', id);
     const networkSnap = await getDoc(docRef);
@@ -161,7 +165,7 @@ export const NetworkProvider = ({children})=>{
       const driver = data.drivers.find(p => p.id === auth.currentUser.uid);
 
       if (!driver){
-        throw new Error('Unknown error') 
+        throw new Error('Unothorized user') 
       }
 
       const status = driver.status
@@ -178,7 +182,7 @@ export const NetworkProvider = ({children})=>{
                 network_id : networkId,
                 passengers : [],
                 ride_status : 'not started',
-                createdAt : new Date()
+                created_at: new Date()
             })
           toast.success('Ride created successfully')
         }
@@ -324,7 +328,7 @@ export const NetworkProvider = ({children})=>{
       const inviteCode = generateInviteCode()
 
       const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-      const userData = userDoc.data();
+      const userData = {id : auth.currentUser.uid , ...userDoc.data()};
 
       const networkRef = doc(db, "networks", networkId);
       const networkSnapshot = await getDoc(networkRef);
@@ -346,16 +350,19 @@ export const NetworkProvider = ({children})=>{
       const status = networkpassenger.status
       const booked = ridepassenger !== undefined ? true : false
 
+      const bookId = `book-${inviteCode}`
+
       if (userData?.role === 'passenger'){
         if (status === 'approved'){
           if (!booked) {
-            await setDoc(doc(db , 'bookings' , `book-${inviteCode}`) , 
+            console.log(userData)
+            await setDoc(doc(db , 'bookings' , bookId) , 
             {
                 passenger : {
-                  id : userData.uid , phone : userData.phone ,
-                  email : userData.email  , fullname : userData.fullname
+                  id : userData.id , phone : userData.phone ,
+                  email : userData.email  , fullname : userData.fullname 
                 } , 
-                passengerId : userData.uid , 
+                passengerId : userData.id , 
                 driver : {
                   id : driver.id , phone : driver.phone ,
                   email : driver.email , fullname : driver.fullname
@@ -367,10 +374,11 @@ export const NetworkProvider = ({children})=>{
                 arrival , 
                 arrival_date , 
                 arrival_time , 
+                booking_status : "pending" ,
                 booked_seats ,
                 price : price * booked_seats , 
                 networkId ,
-                booked_At : new Date()
+                booked_at : new Date()
             })
             
             await updateDoc(doc(db , 'rides' , rideId) , {available_seats : available_seats - booked_seats , 
@@ -378,7 +386,10 @@ export const NetworkProvider = ({children})=>{
                 id : auth.currentUser.uid ,
                 email : userData.email , 
                 phone : userData.phone , 
-                booked_seats : booked_seats
+                booked_seats : booked_seats , 
+                booked_at : new Date() ,
+                booking_id : bookId,
+                status : 'pending'
               })})
             toast.success('Ride Booked successfully')
           }
@@ -531,10 +542,50 @@ const deleteNetwork = async (id) => {
   }
 };
 
+
+const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>{
+  
+  try {
+    console.log(bookingId)
+    setIsLoading(true)
+    const rideRef = doc(db , 'rides' , rideId)
+    const rideSnap = await getDoc(rideRef)
+
+    const bookingRef = doc(db , 'bookings' , bookingId)
+    const bookingSnap = await getDoc(bookingRef)
+
+    
+    
+    if (!rideSnap.exists() || !bookingSnap.exists()) return 
+    const rideData = rideSnap.data() 
+    const bookingData = bookingSnap.data()
+
+    console.log(bookingData)
+
+
+    const updatedPassengers = rideData.passengers.map(p => {
+      return p.id === passengerId ? {...p , status : status} : p}
+    )
+    await updateDoc(rideRef , { passengers : updatedPassengers})
+    await updateDoc(bookingRef , { booking_status : status})
+    if (status === 'declined'){
+      const user = rideData.passengers.find(p => p.id === passengerId)
+      await updateDoc(rideRef , {available_seats : rideData.available_seats + user.booked_seats})
+    }
+    toast.success(`Passenger ${status} successfully`)
+  }
+  catch(error){
+    toast.error(error.message)
+  }
+  finally{
+    setIsLoading(false)
+  }
+}
+
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork ,  getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , isLoading , getNetworkList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , isLoading , getNetworkList}}>
         {children}
     </NetworkContext.Provider>
 }

@@ -77,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const userRef = doc(db , 'users' , auth.currentUser.uid)
       await updateDoc (userRef , data)
-      toast.success('User updated succefully')
+      toast.success('User updated successfully')
     }
     catch (error){
       toast.error(error.message)

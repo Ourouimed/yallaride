@@ -4,7 +4,7 @@ import DashboardLayout from "../../dashboardLayout";
 import { useNetwork } from "@/context/NetworksContext";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Car, CarFront, EllipsisVertical, MapPin, Plus, Settings, Trash, Users } from "lucide-react";
+import { Car, CarFront, EllipsisVertical, Plus, Trash, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePopup } from "@/context/PopupContext";
 import OfferRidePopup from "@/components/popup-forms/OfferRidePopup";
@@ -32,14 +32,6 @@ export default function NetworkPage(){
         const rideData = await getRides()
         setRides(rideData)
       } 
-      else if (user.role === "passenger") {
-        const bookingData = await getBookings()
-        setBookings(bookingData)
-      } 
-      else if (user.role === "director") {
-        const networkData = await getNetworkList()
-        setNetworks(networkData)
-      }
     }
 
     fetchData()

@@ -77,8 +77,8 @@ export default function BookingPage() {
               <p><span className="font-medium">Phone:</span> {bookingData.driver.phone}</p>
               <p><span className="font-medium">Ride:</span> {bookingData.departure} → {bookingData.arrival}</p>
               <p><span className="font-medium">Seats Booked:</span> {bookingData.booked_seats}</p>
-              <p><span className="font-medium">Booking Status:</span> <Badge variant={bookingData.status}>{bookingData.status}</Badge></p>
-              <p><span className="font-medium">Booked At:</span> {new Date(bookingData.booked_At?.seconds * 1000).toLocaleString()}</p>
+              <p><span className="font-medium">Booking Status:</span> <Badge variant={bookingData.booking_status}>{bookingData.booking_status}</Badge></p>
+              <p><span className="font-medium">Booked At:</span> {new Date(bookingData.booked_at?.seconds * 1000).toLocaleString()}</p>
             </CardContent>
           </Card>
 

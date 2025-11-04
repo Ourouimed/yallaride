@@ -4,6 +4,8 @@ import DashboardLayout from "../dashboardLayout";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { EllipsisVertical } from "lucide-react";
 
 export default function MyBookings (){
     const { getRides } = useNetwork()
@@ -29,7 +31,7 @@ export default function MyBookings (){
         </div>
 
 
-        <Table className='border border-border'>
+        <Table className='border border-border overflow-x-auto'>
             <TableHeader>
                 <TableRow>
                     <TableHead>
@@ -59,12 +61,17 @@ export default function MyBookings (){
                     </TableHead>
 
                     <TableHead>
+                        status
+                    </TableHead>
+
+                    <TableHead>
                         booked_seats
                     </TableHead>
 
                     <TableHead>
                         available_seats
                     </TableHead>
+
                 </TableRow>
             </TableHeader>
 
@@ -93,6 +100,10 @@ export default function MyBookings (){
 
                     <TableCell>
                         {r.price}MAD
+                    </TableCell>
+
+                    <TableCell>
+                        <Badge variant={r.ride_status}>{r.ride_status}</Badge>
                     </TableCell>
 
 

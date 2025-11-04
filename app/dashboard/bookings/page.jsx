@@ -4,6 +4,7 @@ import DashboardLayout from "../dashboardLayout";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export default function MyBookings (){
     const { getBookings } = useNetwork()
@@ -44,6 +45,10 @@ export default function MyBookings (){
                     </TableHead>
 
                     <TableHead>
+                        booking status
+                    </TableHead>
+
+                    <TableHead>
                         departure
                     </TableHead>
 
@@ -75,6 +80,12 @@ export default function MyBookings (){
 
                     <TableCell>
                         {b.driver.id}
+                    </TableCell>
+
+                    <TableCell>
+                        <Badge variant={b.booking_status}>
+                            {b.booking_status}
+                        </Badge>
                     </TableCell>
 
                     <TableCell>

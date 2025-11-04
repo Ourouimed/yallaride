@@ -57,53 +57,67 @@ export const NetworkProvider = ({children})=>{
   } 
 
   // Join netwrok func
-  const joinNetwrok = async (id)=>{
-    setIsLoading(true)
-    try {
-      const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
-      const userData = userDoc.data();
-      const docRef = doc(db , 'networks' , id)
-      if (userData?.role == 'passenger'){
-        await updateDoc(docRef , {
-          passengerIds : arrayUnion(auth.currentUser.uid) , 
-          passenger : arrayUnion(
-                      {
-                        id : auth.currentUser.uid , 
-                        fullname : userData.fullname , 
-                        email : userData.email ,
-                        phone : userData.phone ,
-                        status : 'pending' , 
-                        joined_at : new Date()
-                      })
-        })
-        toast.success('Network joined successfully')
-      }
-      else if (userData?.role == 'driver'){
-        await updateDoc(docRef , {
-          driversIds : arrayUnion(auth.currentUser.uid) , 
-          drivers : arrayUnion({...userData ,
-                        id : auth.currentUser.uid , 
-                        fullname : userData.fullname , 
-                        email : userData.email ,
-                        phone : userData.phone ,
-                        status : 'pending' , 
-                        joinedAt : new Date()
-                      })
-        })
-        toast.success('Network joined successfully')
-      }
-      else {
-        throw new Error('Unvalid user')
-      }
+  const joinNetwork = async (id) => {
+  setIsLoading(true);
+  try {
+    const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
+    const userData = userDoc.data();
+    if (!userData) throw new Error("User data not found");
+
+    const docRef = doc(db, 'networks', id);
+    const networkSnap = await getDoc(docRef);
+
+    if (!networkSnap.exists()) throw new Error("Network not found");
+
+    const networkData = networkSnap.data();
+    const uid = auth.currentUser.uid;
+
+   
+    const alreadyPassenger = networkData.passengersIds?.includes(uid);
+    const alreadyDriver = networkData.driversIds?.includes(uid);
+    if (alreadyPassenger || alreadyDriver) {
+      toast.error("You have already joined this network");
+      return;
     }
-    catch (error){
-        console.log(error)
-        toast.error(error.message)
+
+  
+    if (userData.role === "passenger") {
+      await updateDoc(docRef, {
+        passengersIds: arrayUnion(uid),
+        passengers: arrayUnion({
+          id: uid,
+          fullname: userData.fullname,
+          email: userData.email,
+          phone: userData.phone,
+          status: "pending",
+          joined_at: new Date(),
+        }),
+      });
+    } else if (userData.role === "driver") {
+      await updateDoc(docRef, {
+        driversIds: arrayUnion(uid),
+        drivers: arrayUnion({
+          id: uid,
+          fullname: userData.fullname,
+          email: userData.email,
+          phone: userData.phone,
+          status: "pending",
+          joined_at: new Date(),
+        }),
+      });
+    } else {
+      throw new Error("Invalid user role");
     }
-    finally {
-      setIsLoading(false)
-    }
+
+    toast.success("Network joined successfully");
+  } catch (error) {
+    console.error(error);
+    toast.error(error.message);
+  } finally {
+    setIsLoading(false);
   }
+};
+
 
   // Get single network 
   const getNetwork = async (id)=>{
@@ -115,8 +129,9 @@ export const NetworkProvider = ({children})=>{
         if (snapshot.exists()) {
           const isAuthorized =
             data.directorId === userId ||
-            data.passengerIds?.includes(userId) ||
+            data.passengersIds?.includes(userId) ||
             data.driversIds?.includes(userId);
+            console.log('eeree')
           return isAuthorized ? data : null;
         }
         return null
@@ -331,6 +346,7 @@ export const NetworkProvider = ({children})=>{
                 driver : id ,
                 passenger : auth.currentUser.uid , 
                 ride_id : rideId,
+                departure ,
                 departure_date , 
                 departure_time ,
                 arrival , 
@@ -339,7 +355,8 @@ export const NetworkProvider = ({children})=>{
                 booked_seats ,
                 price : price * booked_seats , 
                 networkId ,
-                bookedAt : new Date()
+                ride_status : 'not started',
+                booked_At : new Date()
             })
             
             await updateDoc(doc(db , 'rides' , rideId) , {available_seats : available_seats - booked_seats , 
@@ -379,7 +396,7 @@ export const NetworkProvider = ({children})=>{
                   q = query(networksRef , where("driversIds", "array-contains", user.uid));
                 }
                 else if (userData?.role === 'passenger'){
-                  q = query(networksRef , where("passengerIds", "array-contains", user.uid));
+                  q = query(networksRef , where("passengersIds", "array-contains", user.uid));
                 }
                 else {
                   throw new Error('Unvalid user')
@@ -404,7 +421,7 @@ export const NetworkProvider = ({children})=>{
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwrok , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwork , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , isLoading , networksList}}>
         {children}
     </NetworkContext.Provider>
 }

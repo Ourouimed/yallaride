@@ -7,11 +7,11 @@ import { Button } from "../ui/button";
 
 export default function JoinNetworkPopup(){
     const { closePopup } = usePopup()
-    const { isLoading , joinNetwrok } = useNetwork()
+    const { isLoading , joinNetwork } = useNetwork()
     const [inviteCode , setInviteCode] = useState('')
 
     const handleJoinNetwork = async ()=>{
-        await joinNetwrok(inviteCode.trim())
+        await joinNetwork(inviteCode.trim())
         closePopup()
     }
     return <div className="space-y-4">

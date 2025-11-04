@@ -121,7 +121,7 @@ export default function NetworkPage(){
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {p.joinedAt.toDate().toISOString().split('T')[0]}
+                                                        {p.joined_at.toDate().toISOString().split('T')[0]}
                                                     </TableCell>
                                                     <TableCell>
                                                         <Popover>
@@ -196,7 +196,7 @@ export default function NetworkPage(){
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {p.joinedAt.toDate().toISOString().split('T')[0]}
+                                                        {p.joined_at.toDate().toISOString().split('T')[0]}
                                                     </TableCell>
                                                     <TableCell>
                                                         <Popover>

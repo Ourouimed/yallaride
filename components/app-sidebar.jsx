@@ -11,6 +11,7 @@ import {
   ShipWheel,
   PlusCircle,
   ClipboardList,
+  Ticket,
 } from "lucide-react"
 
 import Image from "next/image"
@@ -43,7 +44,7 @@ role
     ],
     passenger: [
       ...baseMenu,
-      { name: "My Trips", icon: Waypoints, href: "/dashboard/rides" },
+      { name: "My Bookings", icon: Ticket, href: "/dashboard/bookings" },
     ],
   }
 

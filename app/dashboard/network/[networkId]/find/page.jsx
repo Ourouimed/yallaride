@@ -70,7 +70,7 @@ export default function FindRidePage(){
             }));
         };
     return <DashboardLayout>
-       {user?.role === 'passanger' ? <>
+       {user?.role === 'passenger' ? <>
          <Card>
             <CardHeader className='!pb-3 border-b border-border'>
                 <CardTitle>

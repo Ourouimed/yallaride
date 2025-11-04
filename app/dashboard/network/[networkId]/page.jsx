@@ -77,13 +77,12 @@ export default function NetworkPage(){
                 </div>
             </div>
 
-            {user?.role == 'director' && <>
-                        <div className="grid grid-cols-[6fr_3fr] gap-5">
+           
+                        
                             <div className="space-y-3">
                                 <div className="grid grid-cols sm:grid-cols-2 gap-2">
                                     <StatsCard title='total drivers' icon={CarFront} statnumber={networkData.drivers.length}/>
                                     <StatsCard title='total passengers' icon={Users} statnumber={networkData.passengers.length}/>
-                                    <StatsCard title='total rides' icon={MapPin} statnumber={networkData.drivers.length}/>
                                 </div>
                                 <div className="space-y-2">
                                     <h3>passengers</h3>
@@ -239,9 +238,9 @@ export default function NetworkPage(){
                                 
                                 
                             </div>
-                        </div>
+                       
                     
                     </>}
-        </>}
+        
     </DashboardLayout>
 }

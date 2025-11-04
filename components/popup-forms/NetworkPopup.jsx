@@ -14,6 +14,7 @@ export default function NetworkPopup(){
     })
     const { createNetwork, getAllNetworks , isLoading} = useNetwork()
     const { closePopup } = usePopup()
+    const [loading , setLoading] = useState(false)
     const [validationError , setValidationErrors] = useState({})
     const validateForm = () => {
         const newErrors = {}
@@ -24,7 +25,16 @@ export default function NetworkPopup(){
     }
     const handleCreateNetwork = async () => {
         if (validateForm()){
-            await createNetwork(network)
+            try {
+                setLoading(true)
+                await createNetwork(network)
+            }
+            catch {
+
+            }
+            finally {
+                setLoading(false)
+            }
             closePopup()
         }
     }
@@ -44,7 +54,7 @@ export default function NetworkPopup(){
         </div>
         <div className="flex justify-end gap-4">
             <Button onClick={closePopup} variant='outline'>Cancel</Button>
-            <Button onClick={handleCreateNetwork} disabled={isLoading}>{isLoading ? 'Creating...' : 'Create network'}</Button>
+            <Button onClick={handleCreateNetwork} disabled={loading}>{loading ? 'Creating...' : 'Create network'}</Button>
         </div>
         
     </div>

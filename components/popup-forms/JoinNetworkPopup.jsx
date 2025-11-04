@@ -8,11 +8,14 @@ import { Button } from "../ui/button";
 export default function JoinNetworkPopup(){
     const { closePopup } = usePopup()
     const { isLoading , joinNetwork } = useNetwork()
+    const [loading , setLoading] = useState(false)
     const [inviteCode , setInviteCode] = useState('')
 
     const handleJoinNetwork = async ()=>{
-        await joinNetwork(inviteCode.trim())
-        closePopup()
+            setLoading(true)
+            await joinNetwork(inviteCode.trim())
+            setLoading(false)
+            closePopup()
     }
     return <div className="space-y-4">
         <div className="text-center">
@@ -29,7 +32,7 @@ export default function JoinNetworkPopup(){
         </div>
         <div className="flex justify-end gap-4">
             <Button onClick={closePopup} variant='outline'>Cancel</Button>
-            <Button onClick={handleJoinNetwork} disabled={isLoading}>{isLoading ? 'Joining...' : 'Join network'}</Button>
+            <Button onClick={handleJoinNetwork} disabled={loading}>{loading ? 'Joining...' : 'Join network'}</Button>
         </div>
     </div>
 }

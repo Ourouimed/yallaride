@@ -3,7 +3,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Calendar1, ChevronDownIcon } from "lucide-react";
 import { Button } from "./button";
 
-export default function DatePicker({ id, date, setDate }) {
+export default function DatePicker({ id, date, setDate , disabled}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -21,7 +21,7 @@ export default function DatePicker({ id, date, setDate }) {
           selected={date}
           captionLayout="dropdown"
           onSelect={(date) => setDate(date)}
-          disabled={{
+          disabled={disabled && {
             before: new Date(),
           }}
         />

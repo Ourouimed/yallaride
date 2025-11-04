@@ -109,8 +109,8 @@ export default function OfferRidePopup({networkId}){
                       date={rideData.arrival_date ? new Date(rideData.arrival_date) : undefined}
                       setDate={handleArrivalDateChange}
                        disabled={{
-                        before: new Date(), 
-                    }}
+                            before: new Date(), 
+                        }}
                     />
                     {validationError.arrival_date && <p className="text-red-500 text-sm">{validationError.arrival_date}</p>}
                 </div>

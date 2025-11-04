@@ -4,7 +4,7 @@ import DashboardLayout from "../../dashboardLayout";
 import { useNetwork } from "@/context/NetworksContext";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CarFront, EllipsisVertical, MapPin, Plus, Settings, Users } from "lucide-react";
+import { CarFront, EllipsisVertical, MapPin, Plus, Settings, Trash, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePopup } from "@/context/PopupContext";
 import OfferRidePopup from "@/components/popup-forms/OfferRidePopup";
@@ -18,7 +18,7 @@ export default function NetworkPage(){
     const params = useParams(); 
     const { networkId } = params;
     const [networkData , setNetworkData] = useState(null)
-    const { isLoading , getNetwork , changeUserStatus} = useNetwork()
+    const { isLoading , getNetwork , deleteNetwork , changeUserStatus} = useNetwork()
     const { user } = useAuth()
     const { openPopup } = usePopup()
     const passStatus = ['pending' , 'approved' , 'denied']
@@ -29,16 +29,22 @@ export default function NetworkPage(){
     const handleChangePassStatus = async (id , role)=>{
         await changeUserStatus(id , currPassStatus , networkId , role)
     }
+
+    const handleDeleteNetwork = async ()=>{
+        let confirmed = confirm('Are you sure you want to delete ?')
+        if(confirmed) await deleteNetwork(networkId)
+    }
  
 
     useEffect(() => {
     const fetchNetwork = async () => {
+        if (!user) return;
         const data = await getNetwork(networkId);
         setNetworkData(data);
     };
 
     if (networkId) fetchNetwork();
-  }, [networkId, getNetwork]);
+  }, [networkId, user ]);
 
 
     return <DashboardLayout>
@@ -52,8 +58,8 @@ export default function NetworkPage(){
                     </p>
                     {user?.role == 'director' ? <>
                     
-                        <Button variant='outline' className='size-10 p-2 rounded-full'>
-                            <Settings/>
+                        <Button variant='destructive' className='size-10 p-2 rounded-full' onClick={handleDeleteNetwork}>
+                            <Trash/>
                         </Button>
                     </> : user?.role == 'driver' ? <>
                                 <Button className='rounded-md' onClick={()=> openPopup('Offer ride' , <OfferRidePopup networkId={networkId}/>)}>

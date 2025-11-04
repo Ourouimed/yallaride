@@ -36,7 +36,7 @@ export default function RidePage() {
       setRideData(data);
     };
     if (rideId) fetchRide();
-  }, [rideId, networkId, getRide]);
+  }, [user , rideId, networkId]);
 
   const handleBookSeats = async () => {
     if (!rideData) return;
@@ -154,7 +154,7 @@ export default function RidePage() {
 
             {/* RIGHT SIDE */}
             <div className="space-y-4">
-              {/* Passenger List (visible to driver/director) */}
+            
               {(user?.role === "driver" || user?.role === "director") && (
                 <Card>
                   <CardHeader>

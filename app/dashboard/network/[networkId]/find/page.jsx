@@ -54,12 +54,19 @@ export default function FindRidePage(){
             setRideData(prev => ({...prev , [e.target.id] : e.target.value.toLowerCase()}))
         }
 
-        const handleFindRide = async ()=>{
-            if(validateForm()){
-                const rides = await findRide(rideData , networkId)
-                setAvailableRides(rides)
-            }
-        }
+        const [loading, setLoading] = useState(false);
+
+const handleFindRide = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+        const rides = await findRide(rideData, networkId);
+        setAvailableRides(rides);
+    } finally {
+        setLoading(false);
+    }
+};
         
     
         const handleDateChange = (selectedDate) => {
@@ -110,7 +117,7 @@ export default function FindRidePage(){
                         {validationError.departure_date && <p className="text-red-500 text-sm">{validationError.departure_date}</p>}
                     </div>
 
-                    <Button onClick={handleFindRide} disabled={isLoading}>{isLoading? 'Finding...' : 'Find Ride'}<Car/></Button>
+                    <Button onClick={handleFindRide} disabled={loading}>{loading? 'Finding...' : 'Find Ride'}<Car/></Button>
             </div>
             </CardContent>
         </Card>

@@ -6,12 +6,14 @@ import { useNetwork } from "@/context/NetworksContext";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { QRCodeCanvas } from "qrcode.react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function BookingPage() {
   const { bookingId } = useParams();
   const { getBooking } = useNetwork();
   const [bookingData, setBookingData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -27,7 +29,7 @@ export default function BookingPage() {
     };
 
     if (bookingId) fetchBooking();
-  }, [bookingId, getBooking]);
+  }, [user , bookingId]);
 
   if (loading) {
     return (
@@ -45,6 +47,14 @@ export default function BookingPage() {
     );
   }
 
+  if (user?.role !== "passenger") {
+    return (
+      <DashboardLayout>
+        <p className="text-center py-10 text-red-500">You don't have access to this page!</p>
+      </DashboardLayout>
+    );
+  }
+
   const bookingUrl = `${window.location.origin}/dashboard/bookings/${bookingId}`;
 
   return (
@@ -56,15 +66,15 @@ export default function BookingPage() {
             </p>
           </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Booking Info */}
+          
           <Card>
             <CardHeader>
               <CardTitle>Booking Info</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <p><span className="font-medium">Booking ID:</span> {bookingData.id}</p>
-              <p><span className="font-medium">Passenger:</span> {bookingData.passenger.fullname} ({bookingData.passengerEmail})</p>
-              <p><span className="font-medium">Phone:</span> {bookingData.passenger.fullname}</p>
+              <p><span className="font-medium">Driver:</span> {bookingData.driver.fullname} ({bookingData.driver.email})</p>
+              <p><span className="font-medium">Phone:</span> {bookingData.driver.phone}</p>
               <p><span className="font-medium">Ride:</span> {bookingData.departure} → {bookingData.arrival}</p>
               <p><span className="font-medium">Seats Booked:</span> {bookingData.booked_seats}</p>
               <p><span className="font-medium">Booking Status:</span> <Badge variant={bookingData.status}>{bookingData.status}</Badge></p>
@@ -72,7 +82,7 @@ export default function BookingPage() {
             </CardContent>
           </Card>
 
-          {/* QR Code */}
+          
           <Card className="flex flex-col items-center justify-center">
             <CardHeader>
               <CardTitle>QR Code</CardTitle>

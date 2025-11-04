@@ -1,6 +1,6 @@
 'use client'
 import { auth, db } from "@/lib/firebaseClient";
-import { arrayUnion, collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { toast } from "sonner";
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged } from "firebase/auth";
@@ -9,7 +9,6 @@ const NetworkContext = createContext()
 
 export const NetworkProvider = ({children})=>{
     const [isLoading, setIsLoading] = useState(true);
-    const [networksList , setNetworksList] = useState([])
     const generateInviteCode = ()=>{
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       let code = '';
@@ -123,6 +122,7 @@ export const NetworkProvider = ({children})=>{
 
   // Get single network 
   const getNetwork = async (id)=>{
+    setIsLoading(true)
     try {
         const userId = auth.currentUser.uid;
         const currNetwork = doc(db , 'networks' , id)
@@ -139,6 +139,9 @@ export const NetworkProvider = ({children})=>{
     }
     catch (error){
         toast.error(error.message)
+    }
+    finally {
+      setIsLoading(false)
     }
     
   }
@@ -171,6 +174,7 @@ export const NetworkProvider = ({children})=>{
                 ...rideData , 
                 available_seats : rideData.total_seats,
                 driver : {...userData , id : auth.currentUser.uid},
+                driverId : auth.currentUser.uid,
                 network_id : networkId,
                 passengers : [],
                 ride_status : 'not started',
@@ -285,6 +289,7 @@ export const NetworkProvider = ({children})=>{
 
   const getRide = async (id , networkId)=>{
     try {
+        setIsLoading(true)
         const userId = auth.currentUser.uid;
         const network = doc(db , 'networks' , networkId)
         const networkSnapshot = await getDoc(network)
@@ -298,6 +303,7 @@ export const NetworkProvider = ({children})=>{
             networkData.directorId === userId ||
             networkData.passengersIds?.includes(userId) ||
             networkData.driversIds?.includes(userId);
+            console.log(isAuthorized)
           return isAuthorized ? rideData : null;
         }
         return null
@@ -347,12 +353,12 @@ export const NetworkProvider = ({children})=>{
             {
                 passenger : {
                   id : userData.uid , phone : userData.phone ,
-                  email : userData.email
+                  email : userData.email  , fullname : userData.fullname
                 } , 
                 passengerId : userData.uid , 
                 driver : {
                   id : driver.id , phone : driver.phone ,
-                  email : driver.email
+                  email : driver.email , fullname : driver.fullname
                 },
                 ride_id : rideId,
                 departure ,
@@ -430,12 +436,13 @@ export const NetworkProvider = ({children})=>{
 
 const getBooking = async (id)=>{
   try {
+        setIsLoading(true)
         const userId = auth.currentUser.uid;
         const currBooking = doc(db , 'bookings' , id)
         const snapshot = await getDoc(currBooking)
         const data = snapshot.data()
         if (snapshot.exists()) {
-          const isAuthorized = data.passenger === userId || data.driver === userId
+          const isAuthorized = data.passenger.id === userId || data.driver.id === userId
           
           const rideData = await getRide(data.ride_id , data.networkId)
           const rideStatus = rideData.ride_status
@@ -448,10 +455,44 @@ const getBooking = async (id)=>{
     }
 }
 
-  useEffect(()=>{
-    const unsubscribe = onAuthStateChanged(auth , async (user)=>{
-        if (user){
+
+const getRides = async () => {
+  setIsLoading(true);
+  try {
+    const user = auth.currentUser;
+    if (!user) throw new Error("You must be logged in");
+
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    const userData = userDoc.data();
+    if (!userData) throw new Error("User data not found");
+
+    if (userData.role !== 'driver') {throw new Error("This page is available only for drivers")};
+
+    const rideRef = collection(db, 'rides');
+    const q = query(rideRef, where('driverId', '==', user.uid));
+    const snapshot = await getDocs(q);
+
+    const bookings = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+
+      
+    }));
+
+
+    return bookings;
+  } catch (error) {
+    toast.error(error.message);
+    return [];
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const getNetworkList = async ()=>{
+            const user = auth.currentUser
             try {
+                setIsLoading(true)
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 const userData = userDoc.data();
                 const networksRef = collection(db , 'networks')
@@ -470,7 +511,7 @@ const getBooking = async (id)=>{
                 }
                 const snapshot = await getDocs(q);
                 const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                setNetworksList(data)
+                return data.length === 0 ? [] : data
             }
             catch (err){
                 toast.error(err.message)
@@ -478,17 +519,22 @@ const getBooking = async (id)=>{
             finally{
                 setIsLoading(false)
             }
-        }
-        else{
-            setNetworksList([])
-        }
-    })
-    return ()=> unsubscribe()
-  }, [])
+}
+  
+
+const deleteNetwork = async (id) => {
+  try {
+    await deleteDoc(doc(db, "networks", id));
+    toast.success("Network deleted successfully");
+  } catch (err) {
+    toast.error(err.message);
+  }
+};
+
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwork , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, isLoading , networksList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork ,  getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , isLoading , getNetworkList}}>
         {children}
     </NetworkContext.Provider>
 }

@@ -188,7 +188,7 @@ export default function RidePage() {
                             </p>
                             <p className="flex items-center gap-1">
                               <Calendar className="size-3" />{" "}
-                              {formatDate(p.booked_at)}
+                              {formatDate(p.booked_At)}
                             </p>
                           </li>
                         ))}
@@ -222,7 +222,7 @@ export default function RidePage() {
                         </p>
                         <p className="text-sm">
                           <strong>Booked at:</strong>{" "}
-                          {formatDate(currentBooking.booked_at)}
+                          {formatDate(currentBooking.booked_At)}
                         </p>
                       </div>
                     ) : (

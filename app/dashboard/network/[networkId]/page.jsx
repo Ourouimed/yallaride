@@ -4,7 +4,7 @@ import DashboardLayout from "../../dashboardLayout";
 import { useNetwork } from "@/context/NetworksContext";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { CarFront, EllipsisVertical, MapPin, Plus, Settings, Trash, Users } from "lucide-react";
+import { Car, CarFront, EllipsisVertical, MapPin, Plus, Settings, Trash, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { usePopup } from "@/context/PopupContext";
 import OfferRidePopup from "@/components/popup-forms/OfferRidePopup";
@@ -18,11 +18,32 @@ export default function NetworkPage(){
     const params = useParams(); 
     const { networkId } = params;
     const [networkData , setNetworkData] = useState(null)
-    const { isLoading , getNetwork , deleteNetwork , changeUserStatus} = useNetwork()
+    const { isLoading , getNetwork , deleteNetwork , changeUserStatus , getRides} = useNetwork()
     const { user } = useAuth()
     const { openPopup } = usePopup()
     const passStatus = ['pending' , 'approved' , 'denied']
     const [currPassStatus , setCurrPassStatus] = useState('')
+     const [rides, setRides] = useState([])
+      useEffect(() => {
+    const fetchData = async () => {
+      if (!user) return
+
+      if (user.role === "driver") {
+        const rideData = await getRides()
+        setRides(rideData)
+      } 
+      else if (user.role === "passenger") {
+        const bookingData = await getBookings()
+        setBookings(bookingData)
+      } 
+      else if (user.role === "director") {
+        const networkData = await getNetworkList()
+        setNetworks(networkData)
+      }
+    }
+
+    fetchData()
+  }, [user])
 
  
 
@@ -80,9 +101,11 @@ export default function NetworkPage(){
            
                         
                             <div className="space-y-3">
-                                <div className="grid grid-cols sm:grid-cols-2 gap-2">
+                                <div className="grid grid-cols sm:grid-cols-3 gap-2">
+
                                     <StatsCard title='total drivers' icon={CarFront} statnumber={networkData.drivers.length}/>
                                     <StatsCard title='total passengers' icon={Users} statnumber={networkData.passengers.length}/>
+                                    <StatsCard title="Total Rides" statnumber={rides.length} icon={Car} />
                                 </div>
                                 <div className="space-y-2">
                                     <h3>passengers</h3>

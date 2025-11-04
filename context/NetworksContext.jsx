@@ -275,7 +275,7 @@ export const NetworkProvider = ({children})=>{
         toast.success('User status changed successfully')
       }
       else {
-        throw new Error('You do not have permission to create Ride')
+        throw new Error('You do not have permission to change status')
       }
     }
     catch (error){

@@ -22,7 +22,14 @@ const badgeVariants = cva(
         approved : 
           "bg-green-500 text-white" ,
         denied : 
-          "bg-red-500 text-white"
+          "bg-red-500 text-white", 
+          pending: "bg-yellow-500 text-black",
+          approved: "bg-green-500 text-white",
+          denied: "bg-red-500 text-white",
+          declined: "bg-rose-500 text-white",      
+          "on progress": "bg-blue-500 text-white",  
+          finished: "bg-emerald-600 text-white",    
+          canceled: "bg-gray-400 text-black"        
       },
     },
     defaultVariants: {

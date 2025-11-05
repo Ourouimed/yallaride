@@ -18,6 +18,8 @@ import {
   X,
   Check,
   CircleCheck,
+  Settings,
+  CarFront,
 } from "lucide-react";
 import { Badge } from '@/components/ui/badge'
 import { useParams } from "next/navigation";
@@ -28,16 +30,32 @@ import { Input } from "@/components/ui/input";
 
 export default function RidePage() {
   const { rideId, networkId } = useParams();
-  const { getRide, isLoading, bookRide , changeBookingStatus} = useNetwork();
+  const { getRide, isLoading, bookRide , changeBookingStatus , cancelRide , startRide} = useNetwork();
   const { user } = useAuth();
 
   const [rideData, setRideData] = useState(null);
   const [seatsToBook, setSeatsToBook] = useState(1);
+  const [readyTostart , setReadyTostart] = useState(false)
 
   useEffect(() => {
     const fetchRide = async () => {
       const data = await getRide(rideId, networkId);
       setRideData(data);
+
+      if (data?.departure_date && data?.departure_time) {
+        const rideDateTime = new Date(`${data.departure_date}T${data.departure_time}`);
+        const now = new Date();
+
+        // 30 minutes after scheduled time
+        const thirtyMinutesAfter = new Date(rideDateTime.getTime() + 30 * 60 * 1000);
+
+        // set true only if now is between scheduled time and +30min
+        if (now >= rideDateTime && now <= thirtyMinutesAfter) {
+          setReadyTostart(true);
+        } else {
+          setReadyTostart(false);
+        }
+      }
     };
     if (rideId) fetchRide();
   }, [user , rideId, networkId]);
@@ -54,6 +72,14 @@ export default function RidePage() {
 
   const handleApprovePassenger = async (passengerId , bookingId)=>{
     await changeBookingStatus(passengerId  , rideId , bookingId , 'approved')
+  }
+
+  const handleStartRide = async ()=>{
+    await startRide(rideId)
+  }
+
+    const handleCancelRide = async ()=>{
+    await cancelRide(rideId)
   }
 
   const formatDate = (date) => {
@@ -215,10 +241,10 @@ export default function RidePage() {
                                 Status : {" "}
                                 {<Badge variant={p.status}>{p.status}</Badge>}
                               </p>
-                              {p.status === 'pending' && <div className="flex items-center gap-2 mt-2">
+                              {p.status === 'pending' && user?.role=== 'driver' && (<div className="flex items-center gap-2 mt-2">
                                 <Button variant='destructive' disabled={isLoading} onClick={() =>{handledeclinePassenger(p.id , p.booking_id)}}>{isLoading ? 'Declining...' : 'Decline'} <X/></Button>
                                 <Button variant='approved' disabled={isLoading} onClick={() =>{handleApprovePassenger(p.id , p.booking_id)}}>{isLoading ? 'Approving...' : 'Approve'} <Check/></Button>
-                            </div>}
+                            </div>)}
                             
                           </li>
                         ))}
@@ -231,6 +257,28 @@ export default function RidePage() {
                   </CardContent>
                 </Card>
               )}
+
+
+              {user?.role === 'driver' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <Settings className="size-4" />
+                      Manage Ride
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {rideData.ride_status !== 'cancled' && <div className="flex items-center gap-3">
+                      <Button variant='destructive' onClick={handleCancelRide} disabled={rideData.ride_status !== 'not started' || isLoading || readyTostart}>
+                        Cancel ride
+                        <X/>
+                        </Button>
+                      <Button disabled={!readyTostart || isLoading} onClick={handleStartRide}>
+                        Start ride <CarFront/>
+                        </Button>
+                    </div>}
+                  </CardContent>
+              </Card>)}
 
               {/* Passenger booking section */}
               {user?.role === "passenger" && (

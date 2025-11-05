@@ -542,6 +542,37 @@ const deleteNetwork = async (id) => {
   }
 };
 
+const cancelRide = async (rideId)=>{
+  try {
+    setIsLoading(true)
+
+    const rideRef = doc(db , 'rides' , rideId)
+    const rideSnap = await getDoc(rideRef)
+
+    if(!rideSnap.exists()) return
+
+    const rideData = rideSnap.data()
+    const ridePassengers = rideData.passengers
+
+    ridePassengers.forEach(async (p)=>{
+      
+
+      await changeBookingStatus(p.id , rideId , p.booking_id , 'cancled')
+    })
+
+    await updateDoc(rideRef , {ride_status : 'cancled'})
+    toast.success('Ride canceled successfully')
+    
+    
+  }
+  catch (error){
+    toast.error(error.message)
+  }
+  finally{
+    setIsLoading(false)
+  }
+}
+
 
 const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>{
   
@@ -560,7 +591,6 @@ const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>
     const rideData = rideSnap.data() 
     const bookingData = bookingSnap.data()
 
-    console.log(bookingData)
 
 
     const updatedPassengers = rideData.passengers.map(p => {
@@ -585,7 +615,7 @@ const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , isLoading , getNetworkList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , cancelRide , isLoading , getNetworkList}}>
         {children}
     </NetworkContext.Provider>
 }

@@ -9,7 +9,7 @@ import { Button } from "../ui/button";
 export default function Contact() {
   return (
     <section
-      id="about"
+      id="contact"
       className="relative px-6 md:px-16 lg:px-20 py-10 min-h-screen flex justify-center items-center bg-[url('/assets/support.png')] bg-cover bg-center"
     >
       {/* Overlay */}

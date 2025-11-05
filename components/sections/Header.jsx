@@ -9,9 +9,9 @@ import Link from "next/link";
 export default function Header() {
   const links = [
     { path: "/", name: "Home" },
-    { path: "/book", name: "Book a ride" },
-    { path: "/about", name: "About us" },
-    { path: "/contact", name: "Contact us" },
+    { path: "/dashboard", name: "Book a ride" },
+    { path: "#about", name: "About us" },
+    { path: "#contact", name: "Contact us" },
   ];
 
   const { theme, setTheme } = useTheme();
@@ -71,7 +71,7 @@ export default function Header() {
           </Button>
 
           <Button asChild className="hidden md:inline-flex">
-            <Link href="/login">Get started</Link>
+            <Link href="/register">Get started</Link>
           </Button>
 
           {/* Mobile Menu Toggle */}

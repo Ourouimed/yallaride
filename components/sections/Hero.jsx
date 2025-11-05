@@ -20,7 +20,7 @@ export default function Hero() {
             YallaRide makes it easy to share trips, connect with people, and
             enjoy smarter, eco-friendly travel.
           </p>
-          <Button className="bg-mainColor dark:text-white dark:hover:!text-black transition duration-300 ease-in">
+          <Button href='/dashboard' className="bg-mainColor dark:text-white dark:hover:!text-black transition duration-300 ease-in">
             Book your ride
             <Map/>
           </Button>

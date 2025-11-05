@@ -20,6 +20,10 @@ import {
   CircleCheck,
   Settings,
   CarFront,
+  BookText,
+  Calendar1,
+  UserRound,
+  UserRoundX,
 } from "lucide-react";
 import { Badge } from '@/components/ui/badge'
 import { useParams } from "next/navigation";
@@ -30,15 +34,17 @@ import { Input } from "@/components/ui/input";
 
 export default function RidePage() {
   const { rideId, networkId } = useParams();
-  const { getRide, isLoading, bookRide , changeBookingStatus , cancelRide , startRide} = useNetwork();
+  const { getRide, isLoading, bookRide , changeBookingStatus , cancelRide , startRide , 
+    finalizeRide
+  } = useNetwork();
   const { user } = useAuth();
 
   const [rideData, setRideData] = useState(null);
   const [seatsToBook, setSeatsToBook] = useState(1);
   const [readyTostart , setReadyTostart] = useState(false)
 
-  useEffect(() => {
-    const fetchRide = async () => {
+
+   const fetchRide = async () => {
       const data = await getRide(rideId, networkId);
       setRideData(data);
 
@@ -55,31 +61,47 @@ export default function RidePage() {
         } else {
           setReadyTostart(false);
         }
+
+         if (now > thirtyMinutesAfter && data.ride_status === 'not started') {
+          await handleCancelRide()
+        }
       }
     };
+  useEffect(() => {
+   
     if (rideId) fetchRide();
   }, [user , rideId, networkId]);
 
   const handleBookSeats = async () => {
     if (!rideData) return;
     await bookRide({ ...rideData, rideId }, seatsToBook, networkId);
+    fetchRide()
   };
 
 
   const handledeclinePassenger = async (passengerId , bookingId)=>{
     await changeBookingStatus(passengerId  , rideId , bookingId , 'declined')
+    fetchRide()
   }
 
   const handleApprovePassenger = async (passengerId , bookingId)=>{
     await changeBookingStatus(passengerId  , rideId , bookingId , 'approved')
+    fetchRide()
   }
 
   const handleStartRide = async ()=>{
     await startRide(rideId)
+    fetchRide()
   }
 
     const handleCancelRide = async ()=>{
     await cancelRide(rideId)
+    fetchRide()
+  }
+
+  const handlefinalizeRide = async ()=> {
+    await finalizeRide(rideId)
+    fetchRide()
   }
 
   const formatDate = (date) => {
@@ -259,7 +281,7 @@ export default function RidePage() {
               )}
 
 
-              {user?.role === 'driver' && (
+              {user?.role === 'driver' && rideData.ride_status !== 'finished' && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-base font-semibold flex items-center gap-2">
@@ -268,15 +290,49 @@ export default function RidePage() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {rideData.ride_status !== 'cancled' && <div className="flex items-center gap-3">
-                      <Button variant='destructive' onClick={handleCancelRide} disabled={rideData.ride_status !== 'not started' || isLoading || readyTostart}>
+                    <div className="flex items-center gap-3">
+                      <Button variant='destructive' onClick={handleCancelRide} disabled={rideData.ride_status === 'cancled' || rideData.ride_status !== 'not started' || isLoading || readyTostart}>
                         Cancel ride
                         <X/>
                         </Button>
+                      {rideData.ride_status === 'on progress' ? 
+                      <Button disabled={isLoading} onClick={handlefinalizeRide}>Finalize Ride <Check/></Button> : 
                       <Button disabled={!readyTostart || isLoading} onClick={handleStartRide}>
                         Start ride <CarFront/>
-                        </Button>
-                    </div>}
+                        </Button>}
+                    </div>
+                  </CardContent>
+              </Card>)}
+
+              {user?.role === 'driver' && rideData.ride_status === 'finished' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <BookText className="size-4" />
+                      Ride summary
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                    <Calendar1 className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">Started at:</span>{" "}
+                    {formatDate(rideData.started_at)}
+                  </p>
+                  <p>
+                    <Calendar1 className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">Finished at :</span>{" "}
+                    {formatDate(rideData.finished_at)}
+                  </p>
+                  <p>
+                    <Users className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">Accepted passengers:</span>{" "}
+                    {rideData.passengers.filter(p => p.status === 'approved').length}
+                  </p>
+                  <p>
+                    <UserRoundX className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">declined passengers:</span>{" "}
+                    {rideData.passengers.filter(p => p.status === 'declined').length}
+                  </p>
                   </CardContent>
               </Card>)}
 
@@ -293,10 +349,15 @@ export default function RidePage() {
                     {currentBooking ? (
                       <div className="border rounded-md p-3 bg-secondary/30">
                         <p className="font-medium text-foreground">
-                          You’ve already booked this ride.
+                          {currentBooking.status === 'pending' && 'wait for driver approval'}
                         </p>
                         <p className="text-sm">
                           <strong>Seats:</strong> {currentBooking.seats || 1}
+                        </p>
+                        <p className="text-sm">
+                          <strong>Status:</strong> <Badge variant={currentBooking.status}>
+                            {currentBooking.status}
+                          </Badge>
                         </p>
                         <p className="text-sm">
                           <strong>Booked at:</strong>{" "}

@@ -3,8 +3,6 @@ import { auth, db } from "@/lib/firebaseClient";
 import { arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { toast } from "sonner";
 import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged } from "firebase/auth";
-
 const NetworkContext = createContext()
 
 export const NetworkProvider = ({children})=>{
@@ -176,6 +174,8 @@ export const NetworkProvider = ({children})=>{
           await setDoc(doc(db , 'rides' , `ride-${inviteCode}`) , 
             {
                 ...rideData , 
+                started_at : '',
+                finished_at : '' ,
                 available_seats : rideData.total_seats,
                 driver : {...userData , id : auth.currentUser.uid},
                 driverId : auth.currentUser.uid,
@@ -555,15 +555,75 @@ const cancelRide = async (rideId)=>{
     const ridePassengers = rideData.passengers
 
     ridePassengers.forEach(async (p)=>{
-      
+      const bookingRef = doc(db , 'bookings' , p.booking_id)
+      const bookingSnap = await getDoc(bookingRef)
+      if (!bookingSnap.exists()) return 
 
-      await changeBookingStatus(p.id , rideId , p.booking_id , 'cancled')
+      await updateDoc(bookingRef , {booking_status : 'cancled'})
     })
 
     await updateDoc(rideRef , {ride_status : 'cancled'})
     toast.success('Ride canceled successfully')
     
     
+  }
+  catch (error){
+    toast.error(error.message)
+  }
+  finally{
+    setIsLoading(false)
+  }
+}
+
+const startRide = async (rideId)=>{
+  try {
+    setIsLoading(true)
+    const rideRef = doc(db , 'rides' , rideId)
+    const rideSnap = await getDoc(rideRef)
+
+    if(!rideSnap.exists()) return
+
+    const rideData = rideSnap.data()
+    const ridePassengers = rideData.passengers
+
+    ridePassengers.forEach(async (p)=>{
+      const bookingRef = doc(db , 'bookings' , p.booking_id)
+      const bookingSnap = await getDoc(bookingRef)
+      if (!bookingSnap.exists()) return 
+
+      await updateDoc(bookingRef , {booking_status : 'on progress'})
+    })
+    await updateDoc(rideRef , { ride_status : 'on progress' , started_at : new Date()})
+    toast.success('Ride started')
+  }
+  catch (error){
+    toast.error(error.message)
+  }
+  finally{
+    setIsLoading(false)
+  }
+}
+
+const finalizeRide = async (rideId) =>{
+  try {
+    setIsLoading(true)
+    const rideRef = doc(db , 'rides' , rideId)
+    const rideSnap = await getDoc(rideRef)
+
+    if(!rideSnap.exists()) return
+
+    const rideData = rideSnap.data()
+    const ridePassengers = rideData.passengers
+
+    ridePassengers.forEach(async (p)=>{
+      const bookingRef = doc(db , 'bookings' , p.booking_id)
+      const bookingSnap = await getDoc(bookingRef)
+      if (!bookingSnap.exists()) return 
+
+      await updateDoc(bookingRef , {booking_status : 'finished'})
+    })
+    await updateDoc(rideRef , { ride_status : 'finished' , finished_at : new Date()})
+    toast.success('Ride finished , congratulations')
   }
   catch (error){
     toast.error(error.message)
@@ -598,7 +658,7 @@ const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>
     )
     await updateDoc(rideRef , { passengers : updatedPassengers})
     await updateDoc(bookingRef , { booking_status : status})
-    if (status === 'declined'){
+    if (status === 'declined' && rideData.available_seats > 0){
       const user = rideData.passengers.find(p => p.id === passengerId)
       await updateDoc(rideRef , {available_seats : rideData.available_seats + user.booked_seats})
     }
@@ -615,7 +675,7 @@ const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , cancelRide , isLoading , getNetworkList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , cancelRide , finalizeRide , startRide , isLoading , getNetworkList}}>
         {children}
     </NetworkContext.Provider>
 }

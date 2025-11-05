@@ -18,7 +18,7 @@ export default function NetworkPage(){
     const params = useParams(); 
     const { networkId } = params;
     const [networkData , setNetworkData] = useState(null)
-    const { isLoading , getNetwork , deleteNetwork , changeUserStatus , getRides} = useNetwork()
+    const { isLoading , getNetwork , deleteNetwork , changeUserStatus , getRidesByNetworkId} = useNetwork()
     const { user } = useAuth()
     const { openPopup } = usePopup()
     const passStatus = ['pending' , 'approved' , 'denied']
@@ -28,10 +28,8 @@ export default function NetworkPage(){
     const fetchData = async () => {
       if (!user) return
 
-      if (user.role === "driver") {
-        const rideData = await getRides()
-        setRides(rideData)
-      } 
+      const networkRides = await getRidesByNetworkId(networkId)
+      setRides(networkRides)
     }
 
     fetchData()
@@ -143,7 +141,7 @@ export default function NetworkPage(){
                                                     <TableCell>
                                                         {p.joined_at.toDate().toISOString().split('T')[0]}
                                                     </TableCell>
-                                                    <TableCell>
+                                                    {user?.role == 'director' && <TableCell>
                                                         <Popover>
                                                             <PopoverTrigger asChild className='cursor-pointer'>
                                                                 <EllipsisVertical/>
@@ -168,7 +166,7 @@ export default function NetworkPage(){
                                                             </PopoverContent>
                                                         </Popover>
                                                         
-                                                    </TableCell>
+                                                    </TableCell>}
                                                 </TableRow>)}
                                         </TableBody>
                                     </Table>
@@ -218,7 +216,7 @@ export default function NetworkPage(){
                                                     <TableCell>
                                                         {p.joined_at.toDate().toISOString().split('T')[0]}
                                                     </TableCell>
-                                                    <TableCell>
+                                                    {user?.role == 'director' &&<TableCell>
                                                         <Popover>
                                                             <PopoverTrigger asChild className='cursor-pointer'>
                                                                 <EllipsisVertical/>
@@ -243,7 +241,7 @@ export default function NetworkPage(){
                                                             </PopoverContent>
                                                         </Popover>
                                                         
-                                                    </TableCell>
+                                                    </TableCell>}
                                                 </TableRow>)}
                                         </TableBody>
                                     </Table>

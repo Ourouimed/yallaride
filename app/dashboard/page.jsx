@@ -4,7 +4,7 @@ import DashboardLayout from "./dashboardLayout"
 import { useAuth } from "@/context/AuthContext"
 import { useEffect, useState } from "react"
 import StatsCard from "@/components/ui/stats-card"
-import { Car, DollarSign, Users } from "lucide-react"
+import { Car, Check, DollarSign, Users } from "lucide-react"
 
 export default function Dashboard() {
   const { getRides, getBookings, getNetworkList } = useNetwork()
@@ -35,7 +35,7 @@ export default function Dashboard() {
   }, [user])
 
   // === DRIVER STATS ===
-  const totalRevenue = rides.reduce((acc, ride) => {
+  const totalRevenue = rides.filter(r=> r.ride_status == 'finished').reduce((acc, ride) => {
     const bookedSeats = Number(ride.total_seats || 0) - Number(ride.available_seats || 0)
     return acc + bookedSeats * Number(ride.price || 0)
   }, 0)
@@ -46,7 +46,8 @@ export default function Dashboard() {
 
   // === PASSENGER STATS ===
   const totalBookings = bookings.length
-  const totalSpent = bookings.reduce((acc, book) => acc + Number(book.price || 0), 0)
+  const completedBookings = bookings.filter(r => r.booking_status == 'finished')
+  const totalSpent = completedBookings.reduce((acc, book) => acc + Number(book.price || 0), 0)
 
   // === DIRECTOR STATS ===
   const totalNetworks = networks.length
@@ -63,6 +64,7 @@ export default function Dashboard() {
       {user?.role === "driver" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <StatsCard title="Total Rides" statnumber={rides.length} icon={Car} />
+          <StatsCard title="Finished Rides" statnumber={rides.filter(r=>r.ride_status == 'finished').length} icon={Check} />
           <StatsCard title="Total Revenue" statnumber={`${totalRevenue.toFixed(2)} MAD`} icon={DollarSign} />
           <StatsCard title="Total Passengers" statnumber={totalPassengers} icon={Users} />
         </div>
@@ -72,6 +74,7 @@ export default function Dashboard() {
       {user?.role === "passenger" && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <StatsCard title="Total Bookings" statnumber={totalBookings} icon={Car} />
+          <StatsCard title="Completed Bookings" statnumber={completedBookings.length} icon={Car} />
           <StatsCard title="Total Spent" statnumber={`${totalSpent.toFixed(2)} MAD`} icon={DollarSign} />
         </div>
       )}

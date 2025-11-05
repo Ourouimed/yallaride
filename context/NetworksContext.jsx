@@ -204,12 +204,35 @@ export const NetworkProvider = ({children})=>{
     }
   }
 
+  const getRidesByNetworkId = async (networkId)=>{
+    try {
+      setIsLoading(true)
+      const rideRef = collection(db, 'rides');
+      const q = query(rideRef, where('network_id', '==', networkId));
+      const snapshot = await getDocs(q);
+      const rides = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+      }));
+      return rides
+
+    }
+    catch {
+      toast.error(error.message)
+      return []
+    }
+    finally{
+      setIsLoading(false)
+    }
+  }
+
 
   const findRide = async ({departure , arrival , departure_date} , networkId)=>{
     try {
       setIsLoading(true)
       const userDoc = await getDoc(doc(db, 'users', auth.currentUser.uid));
       const userData = userDoc.data();
+
       const ridesRef = collection(db , 'rides')
 
       const networkRef = doc(db, "networks", networkId);
@@ -231,7 +254,9 @@ export const NetworkProvider = ({children})=>{
           const q = query(ridesRef, where("departure", "==", departure.toLowerCase()) ,
                                     where("arrival", "==", arrival.toLowerCase()),
                                     where("departure_date", "==", departure_date) , 
-                                    where("network_id", "==", networkId));
+                                    where("network_id", "==", networkId) , 
+                                    where ('ride_status' , "==" , "not started") ,
+                                    );
           const snapshot = await getDocs(q);
           const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           return data 
@@ -675,7 +700,7 @@ const changeBookingStatus = async (passengerId  , rideId , bookingId , status)=>
     
   
 
-    return <NetworkContext.Provider value={{createNetwork , joinNetwork , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , cancelRide , finalizeRide , startRide , isLoading , getNetworkList}}>
+    return <NetworkContext.Provider value={{createNetwork , joinNetwork , getRidesByNetworkId , deleteNetwork , changeBookingStatus , getNetwork , offerRide ,findRide , changeUserStatus , getRide , bookRide , getBookings , getBooking, getRides , cancelRide , finalizeRide , startRide , isLoading , getNetworkList}}>
         {children}
     </NetworkContext.Provider>
 }

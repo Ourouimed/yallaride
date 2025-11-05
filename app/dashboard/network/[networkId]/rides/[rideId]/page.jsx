@@ -304,37 +304,8 @@ export default function RidePage() {
                   </CardContent>
               </Card>)}
 
-              {user?.role === 'driver' && rideData.ride_status === 'finished' && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base font-semibold flex items-center gap-2">
-                      <BookText className="size-4" />
-                      Ride summary
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-sm text-muted-foreground space-y-2">
-                    <p>
-                    <Calendar1 className="inline size-4 mr-1" />{" "}
-                    <span className="font-medium">Started at:</span>{" "}
-                    {formatDate(rideData.started_at)}
-                  </p>
-                  <p>
-                    <Calendar1 className="inline size-4 mr-1" />{" "}
-                    <span className="font-medium">Finished at :</span>{" "}
-                    {formatDate(rideData.finished_at)}
-                  </p>
-                  <p>
-                    <Users className="inline size-4 mr-1" />{" "}
-                    <span className="font-medium">Accepted passengers:</span>{" "}
-                    {rideData.passengers.filter(p => p.status === 'approved').length}
-                  </p>
-                  <p>
-                    <UserRoundX className="inline size-4 mr-1" />{" "}
-                    <span className="font-medium">declined passengers:</span>{" "}
-                    {rideData.passengers.filter(p => p.status === 'declined').length}
-                  </p>
-                  </CardContent>
-              </Card>)}
+
+              
 
               {/* Passenger booking section */}
               {user?.role === "passenger" && (
@@ -405,6 +376,40 @@ export default function RidePage() {
                   </CardContent>
                 </Card>
               )}
+
+
+              {/* Ride summary if finished */}
+              {rideData.ride_status === 'finished' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <BookText className="size-4" />
+                      Ride summary
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground space-y-2">
+                    <p>
+                    <Calendar1 className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">Started at:</span>{" "}
+                    {formatDate(rideData.started_at)}
+                  </p>
+                  <p>
+                    <Calendar1 className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">Finished at :</span>{" "}
+                    {formatDate(rideData.finished_at)}
+                  </p>
+                  <p>
+                    <Users className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">Accepted passengers:</span>{" "}
+                    {rideData.passengers.filter(p => p.status === 'approved').length}
+                  </p>
+                  <p>
+                    <UserRoundX className="inline size-4 mr-1" />{" "}
+                    <span className="font-medium">declined passengers:</span>{" "}
+                    {rideData.passengers.filter(p => p.status === 'declined').length}
+                  </p>
+                  </CardContent>
+              </Card>)}
             </div>
           </div>
         </div>

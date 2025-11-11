@@ -115,8 +115,8 @@ yallaride/
 #### Home Pages Overview
 Below are the screenshots showing the general view of the homepage:
 
-![Home Page 1](/public/assets/documentation/homepage.png)
-![Home Page 2](/public/assets/documentation/homepage_dark.png)
+![Home Page 1](/public/documentation/homepage.png)
+![Home Page 2](/public/documentation/homepage_dark.png)
 
 #### Admin Dashboard Overview
 Here are the screenshots showcasing the admin dashboard interface:

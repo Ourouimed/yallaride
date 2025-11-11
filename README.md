@@ -1,32 +1,29 @@
 # ⚽ yallaride - carpoling web app
-
-**YallaRide** a full-stack web application for carploing . It is built with **Nextjs + Shadcn** on the frontend and **Firebase & Firestore** on the backend and db.
+**YallaRide** is a full-stack web application that helps organizations and communities create private carpooling networks. It securely connects drivers and passengers within their group, simplifying ride management through a `role-based system` and private access controls. Built with `Next.js` and `Shadcn` on the frontend, and powered by `Firebase` and `Firestore` on the backend.
 
 ## 🚀 Features
 
-- 🧑‍💼 **role based system**  
-  - User authentication & role‑based access (drivers, riders, admin).
-  - ***For Director:*** : 
-    - Each director can create a private network and system generates a random id.
-    - Director can share join code to others (drivers and passengers).
-    - Director can accept or decline network users.
-  - ***For a driver :*** :
-    - Each driver can join a private network by a join code.
-    - Each driver can offer a ride in a selected private network .
-    - Each ride can be shown only for network members.
-    - Driver can accept or decline passengers in ride.
-    - Driver can manage ride status (not started , canceled , on progress , finished).
-  - ***For a passenger :***
-    - Each passenger can join a private network by a join code.
-    - Can find a ride based on departure , arrival and departure date .
-    - Book an available ride and choose number of seats 
-    - passenger pay on cash after ride.
-- **Private network access** 
-  - Each director role limites network access to join network_id
-- 🖥️ **Responsive UI**  
+### 🧑‍💼 Role based system
+- User authentication & role‑based access (drivers, riders, admin).
+
+### 👑 Director
+- Create and manage private networks.
+- Share unique join codes with users.
+- Approve or reject member requests.
+
+### 🚗 Driver
+- Join private networks via join code.
+- Offer rides visible only within the network.
+- Manage ride status (not started, canceled, in progress, finished).
+
+### 🧍 Passenger
+- Join networks using a join code.
+- Search for rides by departure, arrival, and date.
+- Book seats and pay in cash after the ride.
+
+### 🖥️ Responsive UI
   Built with Tailwind CSS + Shadcn + lucide-react for a modern look
 
----
 
 ## 🧰 Tech Stack
 
@@ -36,10 +33,16 @@
 | UI Components| Tailwind CSS + Shadcn       |
 | Backend & db | firebase & firestore        |
 
----
+
+
+## 🔮 Future Enhancements
+- Online payment integration.
+- Real-time ride tracking.
+- Notifications for booking updates.
+- Mobile app version (React Native).
+
 
 ## 🛠️ Installation & Usage
-
 To run this project locally:
 
 ### I. Clone the Repository
@@ -52,7 +55,7 @@ git clone https://github.com/Ourouimed/yallaride.git
 cd yallaride
 npm install
 ```
-Create a `.env` file and fil it with your firebase credentials:
+Create a `.env` file and fill it with your Firebase credentials:
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
@@ -71,54 +74,67 @@ npm run dev
 
 ```bash
 yallaride/
-├── app/
-│   ├── dashboard/
-│   │   ├── bookings/
-│   │   ├── network/
-│   │   ├── networks/
-│   │   ├── profile/
-│   │   ├── rides/
-│   │   ├── dashboardLayout.jsx
-│   │   └── page.jsx
-│   ├── login/page.jsx
-│   ├── register/page.jsx
-│   ├── global.css
-│   ├── layout.jsx
-│   └── page.jsx
-├── components/ 
-├── context/ 
-│   ├── AuthContext.jsx
-│   ├── NetworksContext.jsx
-│   ├── PopupContext.jsx
-│   └── ThemeContext.jsx
-├── hooks/
-├── lib/
-│   ├── firebaseClient.js 
-│   ├── services.js 
-│   ├── testimons
-│   └── utils
-├── public/
-│   ├── documentation
-│   └── assets/
+├── app/                                         # Main Next.js application folder
+│   ├── dashboard/                               # Dashboard (protected area)
+│   │   ├── bookings/                            # Passenger booking pages
+│   │   │   ├── [bookingId]/page.jsx             # Dynamic booking details page
+│   │   │   └── page.jsx                         # List of bookings for each passenger
+│   │   ├── network/                             # Private network view
+│   │   │   └── [networkId]/                     # Dynamic network page
+│   │   │       ├── find/page.jsx                # Find available rides in network
+│   │   │       ├── rides/[rideId]/page.jsx      # Dynamic ride details page
+│   │   │       └── page.jsx                     # Network dashboard home
+│   │   ├── networks/page.jsx                    # All networks overview
+│   │   ├── profile/page.jsx                     # User profile page
+│   │   ├── rides/page.jsx                       # Driver ride management
+│   │   ├── dashboardLayout.jsx                  # Dashboard layout component
+│   │   └── page.jsx                             # Dashboard home page
+│   ├── login/page.jsx                           # Login page
+│   ├── register/page.jsx                        # Registration page
+│   ├── global.css                               # Global styling
+│   ├── layout.jsx                               # Root layout
+│   └── page.jsx                                 # Landing page
+│
+├── components/                                  # Reusable UI components : custom + shadcn
+├── context/                                     # Global React contexts
+│   ├── AuthContext.jsx                          # Authentication context
+│   ├── NetworksContext.jsx                      # Networks management context
+│   ├── PopupContext.jsx                         # Popup/modal management
+│   └── ThemeContext.jsx                         # Light/Dark theme context
+│
+├── hooks/                                       # Custom React hooks
+│   └── use-mobile.js                             # Shadcn mobile hook
+│
+├── lib/                                         # Utility and config files
+│   ├── firebaseClient.js                        # Firebase initialization
+│   ├── services.js                              # statique services data
+│   ├── testimons/                               # Testimonials data
+│   └── utils/                                   # shadcn Helper functions
+│
+├── public/                                      # Static public assets
+│   ├── documentation/                           # Screenshots for README
+│   └── assets/                                  # Project images.
+│
 ├── .gitattributes
 ├── .gitignore
-├── components.json
-├── eslint.config.mjs
-├── jsconfig.json
-├── next.config.mjs
+├── components.json                              # Shadcn components config
+├── eslint.config.mjs                            # ESLint configuration
+├── jsconfig.json                                # JS/TS path aliases
+├── next.config.mjs                              # Next.js configuration
 ├── package-lock.json
 ├── package.json
-└── postcss.config.mjs
-```
-### 📷 Demo and Screenshots
+└── postcss.config.mjs                           # PostCSS configuration
 
-#### Home Pages Overview
+```
+## 📷 Demo and Screenshots
+
+### 🏠 Home Pages Overview
 Below are the screenshots showing the general view of the homepage:
 
 ![Home Page 1](/public/documentation/homepage.png)
 ![Home Page 2](/public/documentation/homepage_dark.png)
 
-#### Admin Dashboard Overview
+### ⚙️ Admin Dashboard Overview
 Here are the screenshots showcasing the admin dashboard interface:
 ![Login page](/public/documentation/login.png)
 ![Register page](/public/documentation/register.png)
@@ -131,7 +147,12 @@ Here are the screenshots showcasing the admin dashboard interface:
 ![Driver rides](/public/documentation/rides.png)
 ![Ride page](/public/documentation/ride.png)
 
----
+## 🤝 Contributing
+Contributions are welcome!  
+Fork the repository, create a feature branch, and submit a pull request.
 
-### 🚀 Demo
+## 📜 License
+This project is licensed under the [MIT License](LICENSE).
+
+## 🚀 Demo
 You can check out the live demo of the project at: [Demo URL](https://yallaride.vercel.app)

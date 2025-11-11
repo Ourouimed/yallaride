@@ -2,8 +2,6 @@
 
 **YallaRide** a full-stack web application for carploing . It is built with **Nextjs + Shadcn** on the frontend and **Firebase & Firestore** on the backend and db.
 
----
-
 ## 🚀 Features
 
 - 🧑‍💼 **role based system**  
@@ -122,16 +120,16 @@ Below are the screenshots showing the general view of the homepage:
 
 #### Admin Dashboard Overview
 Here are the screenshots showcasing the admin dashboard interface:
-![Login page](/public/assets/documentation/login.png)
-![Register page](/public/assets/documentation/register.png)
-![Register page](/public/assets/documentation/register2.png)
-![Admin Dashboard](/public/assets/documentation/dashboard.png)
-![User Profile](/public/assets/documentation/dashboard.png)
-![Networks page](/public/assets/documentation/networks.png)
-![Network dashboard](/public/assets/documentation/network.png)
-![Offer ride](/public/assets/documentation/offer-ride.png)
-![Driver rides](/public/assets/documentation/rides.png)
-![Ride page](/public/assets/documentation/ride.png)
+![Login page](/public/documentation/login.png)
+![Register page](/public/documentation/register.png)
+![Register page](/public/documentation/register2.png)
+![Admin Dashboard](/public/documentation/dashboard.png)
+![User Profile](/public/documentation/dashboard.png)
+![Networks page](/public/documentation/networks.png)
+![Network dashboard](/public/documentation/network.png)
+![Offer ride](/public/documentation/offer-ride.png)
+![Driver rides](/public/documentation/rides.png)
+![Ride page](/public/documentation/ride.png)
 
 ---
 
